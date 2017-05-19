@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace APE
+namespace APE.Enums
 {
 	public enum PortState
 	{
