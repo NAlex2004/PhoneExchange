@@ -4,7 +4,7 @@
 	{
 		Busy,
 		Connected,
-		Disconnected
+		NotConnected
 	}
 }
 

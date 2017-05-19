@@ -36,6 +36,8 @@
     <Compile Include="Interfaces\IPort.cs" />
     <Compile Include="Interfaces\IPortId.cs" />
     <Compile Include="Interfaces\ITerminal.cs" />
+    <Compile Include="PortSateEventArgs.cs" />
+    <Compile Include="PortStateEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enums\PortStates.cs" />
   </ItemGroup>
