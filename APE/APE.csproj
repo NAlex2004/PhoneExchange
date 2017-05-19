@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E5645DFA-C29C-4997-B78C-C4A7D7869E7B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>APE</RootNamespace>
+    <RootNamespace>NAlex.APE</RootNamespace>
     <AssemblyName>APE</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,8 +29,15 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CallEventArgs.cs" />
+    <Compile Include="CallEventHandler.cs" />
+    <Compile Include="Enums\CallEventStates.cs" />
+    <Compile Include="Interfaces\IPhoneExchange.cs" />
+    <Compile Include="Interfaces\IPort.cs" />
+    <Compile Include="Interfaces\IPortId.cs" />
+    <Compile Include="Interfaces\ITerminal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Enums\PortState.cs" />
+    <Compile Include="Enums\PortStates.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />
