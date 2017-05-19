@@ -6,6 +6,7 @@ namespace NAlex.APE.Interfaces
     {
         IEnumerable<IPort> Ports { get; }
         IEnumerable<CallEventArgs> CallsLog { get; }
+        IPort CreatePort();
 
         event CallEventHandler CallStarted;
         event CallEventHandler CallEnded;
