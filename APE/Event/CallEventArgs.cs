@@ -2,7 +2,7 @@
 using NAlex.APE.Enums;
 using NAlex.APE.Interfaces;
 
-namespace NAlex.APE
+namespace NAlex.APE.Event
 {
     public class CallEventArgs: EventArgs
     {

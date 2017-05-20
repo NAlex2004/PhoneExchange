@@ -1,7 +1,7 @@
 using System;
 using NAlex.APE.Enums;
 
-namespace NAlex.APE
+namespace NAlex.APE.Event
 {
     public class PortSateEventArgs: EventArgs
     {

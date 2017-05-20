@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NAlex.APE.Event;
 
 namespace NAlex.APE.Interfaces
 {

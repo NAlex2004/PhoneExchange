@@ -1,4 +1,5 @@
 ﻿using NAlex.APE.Enums;
+using NAlex.APE.Event;
 
 namespace NAlex.APE.Interfaces
 {
@@ -10,7 +11,7 @@ namespace NAlex.APE.Interfaces
         // Events for Terminal
         event CallEventHandler CallReceived;
         event CallEventHandler CallEnded;
-        // Events for APE
+        // Events for APE (from terminal)
         event CallEventHandler ApeCallStarted;
         event CallEventHandler ApeCallEnded;
         event PortStateEventHandler PortStateChanged;
