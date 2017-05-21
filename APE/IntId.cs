@@ -8,14 +8,9 @@ namespace NAlex.APE
     {
         public int Id { get; set; }
 
-        public void IncreaseValue()
+        public IPortId NextValue()
         {
-            Id++;
-        }
-
-        public void DecreaseValue()
-        {
-            Id--;
+            return new IntId() {Id = Id + 1};
         }
 
         public IPortId StartValue()

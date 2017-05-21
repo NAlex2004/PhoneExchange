@@ -103,7 +103,9 @@ namespace NAlex.APE
 
             CallStarted(this, e);
 
-            return (e.State == CallEventStates.Finished || e.State == CallEventStates.Started);
+            return (e.State == CallEventStates.IncommingCallFinished 
+                    || e.State == CallEventStates.OutgoingCallFinished 
+                    || e.State == CallEventStates.Started);
         }
 
         protected virtual void OnCallEnded(CallEventArgs e)

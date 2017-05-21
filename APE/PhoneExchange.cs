@@ -39,7 +39,7 @@ namespace NAlex.APE
             // На события станции порт подпишится сам при событии PortAdded
             // А на него - в конструкторе
             IPort port = _portFactory.CreatePort(_portId);
-            _portId.IncreaseValue();
+            _portId = _portId.NextValue();
             port.ApeCallStarted += PortCallStarted;
             port.ApeCallEnded += PortCallEnded;
             _ports.Add(port);
@@ -124,8 +124,11 @@ namespace NAlex.APE
         protected virtual void PortCallEnded(object sender, CallEventArgs e)
         {
             // разделить входящий и исходящий звонок
+            IPortId destPortId = e.State == CallEventStates.IncommingCallFinished
+                ? e.SourcePortId
+                : e.DestinationPortId;            
             
-            var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.DestinationPortId));
+            var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(destPortId));
             if (destPort != null)
             {
                 OnCallEnded(e);
