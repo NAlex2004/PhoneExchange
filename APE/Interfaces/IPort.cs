@@ -8,6 +8,8 @@ namespace NAlex.APE.Interfaces
         IPortId PortId { get; }
         PortStates PortState { get; }
 
+        bool Connect(ITerminal terminal);
+        void Disconnect();
         // Events for Terminal
         event CallEventHandler CallReceived;
         event CallEventHandler CallEnded;
