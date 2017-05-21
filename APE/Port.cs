@@ -12,12 +12,24 @@ namespace NAlex.APE
         public IPortId PortId { get; protected set; }
         public PortStates PortState { get; protected set; }
 
-        public Port(IPhoneExchange phoneExchange)
+        // Events for terminal (from APE)
+        public event CallEventHandler CallReceived;
+        public event CallEventHandler CallEnded;
+        // Events for APE (from terminal)
+        public event CallEventHandler ApeCallStarted;
+        public event CallEventHandler ApeCallEnded;
+        public event PortStateEventHandler PortStateChanged;        
+        
+        
+        public Port(IPhoneExchange phoneExchange, IPortId portId)
         {
             if (phoneExchange == null)
                 throw new ArgumentNullException(nameof(phoneExchange), "phoneExchange cannot be null.");
-            phoneExchange.CallStarted += IncommingCallReceived;
-            phoneExchange.CallEnded += IncommingCallEnded;
+
+            PortId = portId ?? throw new ArgumentNullException(nameof(portId), "portId cannot be null.");            
+            PortState = PortStates.NotConnected;
+
+            phoneExchange.PortAdded += PortAddedToApe;
         }
         
         public bool Connect(ITerminal terminal)
@@ -48,23 +60,37 @@ namespace NAlex.APE
             }
         }
 
-        // Events for terminal (from APE)
-        public event CallEventHandler CallReceived;
-        public event CallEventHandler CallEnded;
-        // Events for APE (from terminal)
-        public event CallEventHandler ApeCallStarted;
-        public event CallEventHandler ApeCallEnded;
-        public event PortStateEventHandler PortStateChanged;
-
-        public Port(IPortId portId)
+        protected void PortAddedToApe(object sender, PortEventArgs e)
         {
-            PortId = portId;
-            PortState = PortStates.NotConnected;
+            IPhoneExchange phoneExchange = sender as IPhoneExchange;
+            if (phoneExchange != null && e != null && e.Port == this)
+            {
+                phoneExchange.PortAdded -= PortAddedToApe;
+                phoneExchange.PortRemoved += PortRemovedFromApe;
+                phoneExchange.CallStarted += IncommingCallReceived;
+                phoneExchange.CallEnded += IncommingCallEnded;
+            }
         }
         
+        protected void PortRemovedFromApe(object sender, PortEventArgs e)
+        {
+            IPhoneExchange phoneExchange = sender as IPhoneExchange;
+            if (phoneExchange != null && e != null && e.Port == this)
+            {
+                phoneExchange.PortRemoved -= PortRemovedFromApe;
+                phoneExchange.CallStarted -= IncommingCallReceived;
+                phoneExchange.CallEnded -= IncommingCallEnded;
+                phoneExchange.PortRemoved -= PortRemovedFromApe;
+            }
+        }
+        
+        
+        // Подписки на события от подключенного терминала
         protected void OutgoingCallStarted(object sender, CallEventArgs e)
         {
             PortState = PortStates.Busy;
+            if (e != null && e.SourcePortId == null)
+                e.SourcePortId = PortId;
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnApeCallStarted(e);
         }
@@ -72,10 +98,14 @@ namespace NAlex.APE
         protected void OutgoingCallEnded(object sender, CallEventArgs e)
         {
             PortState = PortStates.Connected;
+            if (e != null && e.SourcePortId == null)
+                e.SourcePortId = PortId;
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnApeCallEnded(e);
         }
-
+        // -----
+        
+        // Подписки на события от АТС 
         protected void IncommingCallReceived(object sender, CallEventArgs e)
         {
             PortState = PortStates.Busy;
@@ -89,25 +119,30 @@ namespace NAlex.APE
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnCallEnded(e);
         }
-
+        //-----------------
+        
+        // Сигнал терминалу о звонке
         protected virtual void OnCallReceived(CallEventArgs e)
         {
             if (CallReceived != null)
                 CallReceived(this, e);
         }
         
+        // Сигнал терминалу об окончании звонка
         protected virtual void OnCallEnded(CallEventArgs e)
         {
             if (CallEnded != null)
                 CallEnded(this, e);
         }
         
+        // Сигнал станции о звонке
         protected virtual void OnApeCallStarted(CallEventArgs e)
         {
             if (ApeCallStarted != null)
                 ApeCallStarted(this, e);
         }
         
+        // Сигнал станции об окончании звонка
         protected virtual void OnApeCallEnded(CallEventArgs e)
         {
             if (ApeCallEnded != null)

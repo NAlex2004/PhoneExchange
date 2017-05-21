@@ -70,6 +70,9 @@ namespace NAlex.APE
             IPort port = sender as IPort;
             if (sender != null && e != null && e.Port != null)
             {
+                if (_port != null && _port != e.Port)
+                    return;
+                
                 if (e.Port.PortState == PortStates.NotConnected)
                 {
                     Unsubscribe();                    
@@ -77,9 +80,8 @@ namespace NAlex.APE
                     _destPortId = null;
                 }
                 else 
-                    if (e.Port.PortState == PortStates.Connected && !object.ReferenceEquals(_port, e.Port))
+                    if (e.Port.PortState == PortStates.Connected && _port == null)
                     {
-                        Unsubscribe();
                         _port = e.Port;
                         _port.CallReceived += IncommingCallReceived;
                         _port.CallEnded += IncommingCallEnded;

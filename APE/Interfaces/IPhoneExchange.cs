@@ -11,5 +11,8 @@ namespace NAlex.APE.Interfaces
 
         event CallEventHandler CallStarted;
         event CallEventHandler CallEnded;
+
+        event PortStateEventHandler PortAdded;
+        event PortStateEventHandler PortRemoved;
     }
 }
