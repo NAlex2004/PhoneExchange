@@ -6,51 +6,47 @@ using NAlex.APE.Interfaces;
 
 namespace NAlex.APE
 {
-    public class Terminal: ITerminal
+    public class Terminal : ITerminal
     {
         private IPortId _destPortId;
         private IPort _port;
-    
+        private CallEventArgs _call;
+
         public bool StartCall(IPortId portId)
         {
             if (PortState != PortStates.Connected)
                 return false;
-            
+
             _destPortId = portId;
-            
-            return OnCallStarted(new CallEventArgs()
+
+            _call = new CallEventArgs()
             {
-                Date = DateTime.Now, 
-                DestinationPortId = portId, 
-                SourcePortId = _port != null ? _port.PortId : null, 
+                Date = DateTime.Now,
+                DestinationPortId = portId,
+                SourcePortId = _port != null ? _port.PortId : null,
                 State = CallEventStates.Started
-            });
+            };
+
+            return OnCallStarted(_call);
         }
 
         public void EndCall()
         {
-            CallEventArgs e = new CallEventArgs()
-            {
-                Date = DateTime.Now, 
-                DestinationPortId = _destPortId, 
-                SourcePortId = _port != null ? _port.PortId : null,
-                State = CallEventStates.Started
-            };
-            
-            _destPortId = null;
-            
-            OnCallEnded(e);
+            if (PortState != PortStates.Busy || _call == null || _port == null)
+                return;
+
+            CallEventArgs eventArgs = (CallEventArgs) _call.Clone();                        
+            eventArgs.State = _call.SourcePortId == _port.PortId ? CallEventStates.OutgoingCallFinished : CallEventStates.IncommingCallFinished;
+            OnCallEnded(eventArgs);
+            _call = null;            
         }
 
         public PortStates PortState
         {
-            get 
-            {
-                return (_port == null ? PortStates.NotConnected : _port.PortState);
-            }            
+            get { return (_port == null ? PortStates.NotConnected : _port.PortState); }
         }
 
-        public event CallEventHandler CallStarted;        
+        public event CallEventHandler CallStarted;
         public event CallEventHandler CallEnded;
 
         private void Unsubscribe()
@@ -61,7 +57,7 @@ namespace NAlex.APE
                 _port.CallEnded -= IncommingCallEnded;
             }
         }
-        
+
         //----------
         // подписки
 
@@ -72,43 +68,42 @@ namespace NAlex.APE
             {
                 if (_port != null && _port != e.Port)
                     return;
-                
+
                 if (e.Port.PortState == PortStates.NotConnected)
                 {
-                    Unsubscribe();                    
+                    Unsubscribe();
                     _port = null;
                     _destPortId = null;
                 }
-                else 
-                    if (e.Port.PortState == PortStates.Connected && _port == null)
-                    {
-                        _port = e.Port;
-                        _port.CallReceived += IncommingCallReceived;
-                        _port.CallEnded += IncommingCallEnded;
-                    }                
+                else if (e.Port.PortState == PortStates.Connected && _port == null)
+                {
+                    _port = e.Port;
+                    _port.CallReceived += IncommingCallReceived;
+                    _port.CallEnded += IncommingCallEnded;
+                }
             }
         }
-        
+
         protected void IncommingCallReceived(object sender, CallEventArgs e)
         {
-            
+            _call = (CallEventArgs) e.Clone();
         }
 
         protected void IncommingCallEnded(object sender, CallEventArgs e)
         {
-            
+            _call = null;
         }
 
         //----------
-        
+
         protected virtual bool OnCallStarted(CallEventArgs e)
         {
-            if (CallStarted == null) 
-                return false;            
+            if (CallStarted == null)
+                return false;
 
             CallStarted(this, e);
 
-            return (e.State == CallEventStates.Finished || e.State == CallEventStates.Started);            
+            return (e.State == CallEventStates.Finished || e.State == CallEventStates.Started);
         }
 
         protected virtual void OnCallEnded(CallEventArgs e)

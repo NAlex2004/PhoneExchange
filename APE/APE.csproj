@@ -34,11 +34,14 @@
     <Compile Include="Event\CallEventHandler.cs" />
     <Compile Include="Event\PortEventArgs.cs" />
     <Compile Include="Event\PortStateEventHandler.cs" />
+    <Compile Include="Factories\PePortFactory.cs" />
     <Compile Include="Interfaces\IPhoneExchange.cs" />
     <Compile Include="Interfaces\IPort.cs" />
+    <Compile Include="Interfaces\IPortFactory.cs" />
     <Compile Include="Interfaces\IPortId.cs" />
     <Compile Include="Interfaces\ITerminal.cs" />
     <Compile Include="IntId.cs" />
+    <Compile Include="PhoneExchange.cs" />
     <Compile Include="Port.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enums\PortStates.cs" />

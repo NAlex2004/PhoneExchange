@@ -3,7 +3,8 @@
     public enum CallEventStates
     {
         Started,
-        Finished,
+        IncommingCallFinished,
+        OutgoingCallFinished,
         Missed,
         Invalid
     }

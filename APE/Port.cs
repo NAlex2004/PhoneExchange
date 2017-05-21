@@ -38,8 +38,8 @@ namespace NAlex.APE
                 return false;
 
             _terminal = terminal;
-            _terminal.CallStarted += OutgoingCallStarted;
-            _terminal.CallEnded += OutgoingCallEnded;
+            _terminal.CallStarted += TerminalCallStarted;
+            _terminal.CallEnded += TerminalCallEnded;
             PortStateChanged += _terminal.PortStateChanged;
 
             PortState = PortStates.Connected;
@@ -51,8 +51,8 @@ namespace NAlex.APE
         {
             if (_terminal != null)
             {
-                _terminal.CallStarted -= OutgoingCallStarted;
-                _terminal.CallEnded -= OutgoingCallEnded;
+                _terminal.CallStarted -= TerminalCallStarted;
+                _terminal.CallEnded -= TerminalCallEnded;
                 PortState = PortStates.NotConnected;
                 OnPortStateChanged(new PortEventArgs() {Port = this});
                 PortStateChanged -= _terminal.PortStateChanged;
@@ -86,7 +86,7 @@ namespace NAlex.APE
         
         
         // Подписки на события от подключенного терминала
-        protected void OutgoingCallStarted(object sender, CallEventArgs e)
+        protected void TerminalCallStarted(object sender, CallEventArgs e)
         {
             PortState = PortStates.Busy;
             if (e != null && e.SourcePortId == null)
@@ -95,11 +95,12 @@ namespace NAlex.APE
             OnApeCallStarted(e);
         }
 
-        protected void OutgoingCallEnded(object sender, CallEventArgs e)
+        // Как входящий, так и исходящий
+        protected void TerminalCallEnded(object sender, CallEventArgs e)
         {
             PortState = PortStates.Connected;
-            if (e != null && e.SourcePortId == null)
-                e.SourcePortId = PortId;
+//            if (e != null && e.SourcePortId == null)
+//                e.SourcePortId = PortId;
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnApeCallEnded(e);
         }
@@ -135,14 +136,14 @@ namespace NAlex.APE
                 CallEnded(this, e);
         }
         
-        // Сигнал станции о звонке
+        // Сигнал для станции о звонке
         protected virtual void OnApeCallStarted(CallEventArgs e)
         {
             if (ApeCallStarted != null)
                 ApeCallStarted(this, e);
         }
         
-        // Сигнал станции об окончании звонка
+        // Сигнал для станции об окончании звонка
         protected virtual void OnApeCallEnded(CallEventArgs e)
         {
             if (ApeCallEnded != null)
