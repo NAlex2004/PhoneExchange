@@ -38,7 +38,7 @@ namespace NAlex.APE
         
         public bool Connect(ITerminal terminal)
         {
-            if (terminal == null)
+            if (terminal == null || _terminal != null)
                 return false;
 
             _terminal = terminal;
@@ -56,12 +56,12 @@ namespace NAlex.APE
         {
             if (_terminal != null)
             {
-                _terminal.CallStarted -= TerminalCallStarted;
-                _terminal.CallEnded -= TerminalCallEnded;
-                _terminal.CallAccepted -= TerminalCallAccepted;
                 PortState = PortStates.NotConnected;
                 OnPortStateChanged(new PortEventArgs() {Port = this});
                 PortStateChanged -= _terminal.PortStateChanged;
+                _terminal.CallStarted -= TerminalCallStarted;
+                _terminal.CallEnded -= TerminalCallEnded;
+                _terminal.CallAccepted -= TerminalCallAccepted;                
                 _terminal = null;
             }
         }
@@ -116,7 +116,8 @@ namespace NAlex.APE
             Debug.WriteLine("[Port.TerminalCallEnded] PortId: {0}", PortId);
             Debug.WriteLine(e);
             
-            PortState = PortStates.Connected;
+            if (PortState != PortStates.NotConnected)
+                PortState = PortStates.Connected;
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnApeCallEnded(e);
         }
@@ -144,7 +145,8 @@ namespace NAlex.APE
 
         protected void IncommingCallEnded(object sender, CallEventArgs e)
         {            
-            PortState = PortStates.Connected;
+            if (PortState != PortStates.NotConnected)
+                PortState = PortStates.Connected;
             
             Debug.WriteLine("[Port.IncommingCallEnded] PortId: {0}", PortId);
             Debug.WriteLine(e);

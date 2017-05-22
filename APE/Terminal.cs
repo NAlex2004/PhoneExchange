@@ -9,7 +9,6 @@ namespace NAlex.APE
 {
     public class Terminal : ITerminal
     {
-        private IPortId _destPortId;
         private IPort _port;
         private CallEventArgs _call;
 
@@ -24,8 +23,6 @@ namespace NAlex.APE
         {
             if (PortState != PortStates.Connected)
                 return false;
-
-            _destPortId = portId;
 
             _call = new CallEventArgs()
             {
@@ -83,7 +80,7 @@ namespace NAlex.APE
         public virtual void PortStateChanged(object sender, PortEventArgs e)
         {            
             IPort port = sender as IPort;
-            if (sender != null && e != null && e.Port != null)
+            if (port != null && e != null && e.Port != null)
             {
                 if (_port != null && _port != e.Port)
                     return;
@@ -92,9 +89,22 @@ namespace NAlex.APE
                 
                 if (e.Port.PortState == PortStates.NotConnected)
                 {
+                    // Есть незавершенный звонок
+                    if (_call != null)
+                    {
+                        CallEventArgs eventArgs = (CallEventArgs) _call.Clone();
+                        if (eventArgs.State == CallEventStates.Accepted)                            
+                            eventArgs.State = _call.SourcePortId == _port.PortId ? CallEventStates.OutgoingCallFinished : CallEventStates.IncommingCallFinished;
+                        else
+                            eventArgs.State = CallEventStates.Missed;
+                        eventArgs.Date = DateTime.Now;
+                        _call = null;
+                        OnCallEnded(eventArgs);  
+                    }
+                    
                     Unsubscribe();
                     _port = null;
-                    _destPortId = null;
+                    _call = null;
                 }
                 else if (e.Port.PortState == PortStates.Connected && _port == null)
                 {
