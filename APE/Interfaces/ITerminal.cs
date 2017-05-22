@@ -7,13 +7,16 @@ namespace NAlex.APE.Interfaces
     {        
         bool StartCall(IPortId portId); // void
         void EndCall();
+        void AcceptCall();
+        
         PortStates PortState { get; }
         
         event CallEventHandler CallStarted;
         event CallEventHandler CallEnded;
-
+        event CallEventHandler CallAccepted;        
+        // Для абонента только
+        event CallEventHandler CallReceived;                
+        
         void PortStateChanged(object sender, PortEventArgs e);
-//        void IncommingCallReceived(object sender, CallEventArgs e);
-//        void IncommingCallEnded(object sender, CallEventArgs e);
     }
 }

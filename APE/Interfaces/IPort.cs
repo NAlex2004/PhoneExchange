@@ -13,9 +13,11 @@ namespace NAlex.APE.Interfaces
         // Events for Terminal
         event CallEventHandler CallReceived;
         event CallEventHandler CallEnded;
+        event CallEventHandler CallAccepted;
         // Events for APE (from terminal)
         event CallEventHandler ApeCallStarted;
         event CallEventHandler ApeCallEnded;
+        event CallEventHandler ApeCallAccepted;
         event PortStateEventHandler PortStateChanged;
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NAlex.APE.Enums;
 using NAlex.APE.Event;
@@ -8,13 +9,13 @@ namespace NAlex.APE
 {
     public class PhoneExchange : IPhoneExchange
     {
-        private IPortFactory _portFactory;
         private IList<IPort> _ports = new List<IPort>();
         private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
         private IPortId _portId;
 
         public event CallEventHandler CallStarted;
         public event CallEventHandler CallEnded;
+        public event CallEventHandler CallAccepted;
         public event PortStateEventHandler PortAdded;
         public event PortStateEventHandler PortRemoved;
 
@@ -28,20 +29,20 @@ namespace NAlex.APE
             get { return _callLog; }
         }
 
-        public PhoneExchange(IPortFactory portFactory)
+        public PhoneExchange(IPortId startPortId)
         {
-            _portFactory = portFactory;
-            _portId = _portId.StartValue();
+            _portId = startPortId;
         }
 
-        public IPort CreatePort()
+        public IPort CreatePort(IPortFactory portFactory)
         {
             // На события станции порт подпишится сам при событии PortAdded
             // А на него - в конструкторе
-            IPort port = _portFactory.CreatePort(_portId);
+            IPort port = portFactory.CreatePort(_portId);
             _portId = _portId.NextValue();
             port.ApeCallStarted += PortCallStarted;
             port.ApeCallEnded += PortCallEnded;
+            port.ApeCallAccepted += PortCallAccepted;
             _ports.Add(port);
             OnPortAdded(port);
             return port;
@@ -61,6 +62,9 @@ namespace NAlex.APE
 
         protected virtual void OnCall(CallEventHandler handler, CallEventArgs e, IPortId destPortId)
         {
+            Debug.WriteLine("[PhoneExchange.OnCall]");
+            Debug.WriteLine(e);
+            
             if (handler != null)
             {
                 // Только один нужный порт может быть
@@ -99,6 +103,11 @@ namespace NAlex.APE
             OnCall(CallEnded, e, e.DestinationPortId);
         }
 
+        protected virtual void OnCallAccepted(CallEventArgs e)
+        {
+            OnCall(CallAccepted, e, e.SourcePortId);
+        }
+        
         // Подписки на события от портов
         protected virtual void PortCallStarted(object sender, CallEventArgs e)
         {
@@ -133,6 +142,13 @@ namespace NAlex.APE
             {
                 OnCallEnded(e);
             }
+        }
+
+        protected virtual void PortCallAccepted(object sender, CallEventArgs e)
+        {
+            var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.SourcePortId));
+            if (destPort != null)
+                OnCallAccepted(e);
         }
     }
 }

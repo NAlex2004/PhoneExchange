@@ -7,7 +7,7 @@ namespace NAlex.APE
     public struct IntId: IPortId
     {
         public int Id { get; set; }
-
+        
         public IPortId NextValue()
         {
             return new IntId() {Id = Id + 1};
@@ -21,6 +21,11 @@ namespace NAlex.APE
         public string Value
         {
             get { return Id.ToString(); }
+        }
+
+        public override string ToString()
+        {
+            return Value;
         }
 
         public bool Equals(IPortId other)

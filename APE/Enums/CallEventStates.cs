@@ -6,6 +6,7 @@
         IncommingCallFinished,
         OutgoingCallFinished,
         Missed,
-        Invalid
+        Invalid,
+        Accepted
     }
 }
