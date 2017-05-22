@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using NAlex.APE;
 using NAlex.APE.Event;
@@ -14,7 +16,8 @@ namespace TempTest
         {
             ITerminal terminal = sender as ITerminal;
             Thread.Sleep(1500);
-            terminal.AcceptCall();
+            terminal.EndCall();
+//            terminal.AcceptCall();
         }
         
         public static void Main(string[] args)
@@ -38,6 +41,9 @@ namespace TempTest
             p1.Disconnect();
             p2.Disconnect();
             t2.CallReceived -= CallReceived;
+         
+            ape.CallsLog.OrderBy(e => e.Date).ToList().ForEach(e => Console.WriteLine("{0}\n", e));
+//            ape.CallsLog.Where(e => e.SourcePortId.Equals(new IntId() {Id = 1}) && e.State == )
         }
     }
 }

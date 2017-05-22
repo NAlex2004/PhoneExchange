@@ -71,7 +71,7 @@ namespace NAlex.APE
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
             if (phoneExchange != null && e != null && e.Port == this)
             {
-                Debug.WriteLine("[Port.PortAddedToApe] PortId: {0}", e.Port.PortId.Value);
+                Debug.WriteLine("[Port.PortAddedToApe] PortId: {0}", e.Port.PortId);
                 
                 phoneExchange.PortAdded -= PortAddedToApe;
                 phoneExchange.PortRemoved += PortRemovedFromApe;
@@ -86,7 +86,7 @@ namespace NAlex.APE
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
             if (phoneExchange != null && e != null && e.Port == this)
             {
-                Debug.WriteLine("[Port.PortRemovedFromApe] PortId: {0}", e.Port.PortId.Value);
+                Debug.WriteLine("[Port.PortRemovedFromApe] PortId: {0}", e.Port.PortId);
                 
                 phoneExchange.PortRemoved -= PortRemovedFromApe;
                 phoneExchange.CallStarted -= IncommingCallReceived;
@@ -117,8 +117,6 @@ namespace NAlex.APE
             Debug.WriteLine(e);
             
             PortState = PortStates.Connected;
-//            if (e != null && e.SourcePortId == null)
-//                e.SourcePortId = PortId;
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnApeCallEnded(e);
         }

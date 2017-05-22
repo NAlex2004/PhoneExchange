@@ -140,7 +140,7 @@ namespace NAlex.APE
             var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(destPortId));
             if (destPort != null)
             {
-                OnCallEnded(e);
+				OnCall(CallEnded, e, destPortId);
             }
         }
 

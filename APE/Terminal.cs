@@ -46,8 +46,8 @@ namespace NAlex.APE
             CallEventArgs eventArgs = (CallEventArgs) _call.Clone();                        
             eventArgs.State = _call.SourcePortId == _port.PortId ? CallEventStates.OutgoingCallFinished : CallEventStates.IncommingCallFinished;
             eventArgs.Date = DateTime.Now;
-            OnCallEnded(eventArgs);
-            _call = null;            
+            _call = null;
+            OnCallEnded(eventArgs);                        
         }
 
         public void AcceptCall()
