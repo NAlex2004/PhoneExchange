@@ -46,6 +46,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enums\PortStates.cs" />
     <Compile Include="Terminal.cs" />
+    <Compile Include="Interfaces\IBillableExchange.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />
