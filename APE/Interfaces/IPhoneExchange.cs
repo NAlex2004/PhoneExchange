@@ -5,8 +5,7 @@ namespace NAlex.APE.Interfaces
 {
     public interface IPhoneExchange
     {
-        IEnumerable<IPort> Ports { get; }
-        IEnumerable<CallEventArgs> CallsLog { get; }
+        IEnumerable<IPort> Ports { get; }        
         IPort CreatePort(IPortFactory portFactory);
 
         event CallEventHandler CallStarted;

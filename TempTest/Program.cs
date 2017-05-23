@@ -49,7 +49,7 @@ namespace TempTest
             p3.Disconnect();
             t2.CallReceived -= CallReceived;
          
-            ape.CallsLog.OrderBy(e => e.Date).ToList().ForEach(e => Console.WriteLine("{0}\n", e));
+			(ape as IBillableExchange).CallsLog.OrderBy(e => e.Date).ToList().ForEach(e => Console.WriteLine("{0}\n", e));
 //            ape.CallsLog.Where(e => e.SourcePortId.Equals(new IntId() {Id = 1}) && e.State == )
         }
     }

@@ -11,6 +11,7 @@ namespace NAlex.APE.Event
         public IPortId DestinationPortId { get; set; }
         public DateTime Date { get; set; }
         public CallEventStates State { get; set; }
+		public bool IsAllowed { get; set; }
         
         public object Clone()
         {
