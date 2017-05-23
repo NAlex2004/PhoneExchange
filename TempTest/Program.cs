@@ -41,7 +41,7 @@ namespace TempTest
             t1.StartCall(p2.PortId);
             t2.StartCall(p3.PortId);
             t3.StartCall(p1.PortId);
-            
+
             t1.EndCall();
             t1.StartCall(p3.PortId);
             p1.Disconnect();
