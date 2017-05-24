@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NAlex.APE.Event;
 
-namespace NAlex.APE
+namespace NAlex.APE.Interfaces
 {
 	public interface IBillableExchange
 	{
