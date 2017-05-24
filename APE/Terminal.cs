@@ -24,8 +24,9 @@ namespace NAlex.APE
             if (PortState != PortStates.Connected)
                 return false;
 
-            _call = new CallEventArgs()
-            {
+			_call = new CallEventArgs()
+			{
+				CallId = Guid.NewGuid(),
                 Date = DateTime.Now,
                 DestinationPortId = portId,
                 SourcePortId = _port != null ? _port.PortId : null,

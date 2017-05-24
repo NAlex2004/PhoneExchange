@@ -29,8 +29,10 @@ namespace NAlex.APE
         {
             if (phoneExchange == null)
                 throw new ArgumentNullException(nameof(phoneExchange), "phoneExchange cannot be null.");
+			if (portId == null)
+				throw new ArgumentNullException(nameof(portId), "portId cannot be null.");
 
-            PortId = portId ?? throw new ArgumentNullException(nameof(portId), "portId cannot be null.");            
+			PortId = portId;
             PortState = PortStates.NotConnected;
 
             phoneExchange.PortAdded += PortAddedToApe;

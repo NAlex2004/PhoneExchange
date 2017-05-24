@@ -7,6 +7,7 @@ namespace NAlex.APE.Event
 {
     public class CallEventArgs: EventArgs, ICloneable
     {
+		public Guid CallId { get; set;}
         public IPortId SourcePortId { get; set; }
         public IPortId DestinationPortId { get; set; }
         public DateTime Date { get; set; }
@@ -20,7 +21,8 @@ namespace NAlex.APE.Event
                 Date = this.Date,
                 SourcePortId = this.SourcePortId,
                 DestinationPortId = this.DestinationPortId,
-                State = this.State
+                State = this.State,
+				CallId = this.CallId
             };
         }
 
@@ -28,6 +30,7 @@ namespace NAlex.APE.Event
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("\t[CallEventArgs]");
+			sb.AppendLine(string.Format("CallId: {0}", CallId));
             sb.AppendLine(string.Format("SourcePortId: {0}", SourcePortId));
             sb.AppendLine(string.Format("DestinationPortId: {0}", DestinationPortId));
             sb.AppendLine(string.Format("Date: {0}", Date));

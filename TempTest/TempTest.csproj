@@ -48,6 +48,10 @@
       <Project>{E5645DFA-C29C-4997-B78C-C4A7D7869E7B}</Project>
       <Name>APE</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Billing\Billing.csproj">
+      <Project>{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}</Project>
+      <Name>Billing</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
