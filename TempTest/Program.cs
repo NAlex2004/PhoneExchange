@@ -64,28 +64,49 @@ namespace TempTest
 											 &&
 											 (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
 									  //.OrderBy(e => e.Date)
-									  .GroupBy(g => g.CallId, a => new { a.Date, a.SourcePortId, a.DestinationPortId, a.State, a.IsAllowed });
-			//.ToList()
-			//.ForEach(e => Console.WriteLine("{0}\n", e));
+									  .GroupBy(g => g.CallId);//, a => new { a.Date, a.SourcePortId, a.DestinationPortId, a.State, a.IsAllowed });
+															  //.ToList()
+															  //.ForEach(e => Console.WriteLine("{0}\n", e));
 
-			foreach (var g in calls)
+			calls.SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
+							 (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
+							 .Select(r => new Call()
+							 {
+								 StartDate = cc,
+								 Duration = r.Date - cc,
+								 IsIncomming = r.State == CallEventStates.IncommingCallFinished,
+								 OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
+							 }).FirstOrDefault())
+			     .Where(c => c.Duration != default(TimeSpan))
+				 .ToList()
+				 .ForEach(call =>
 			{
-				Call call;
-				call.StartDate = g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date).FirstOrDefault();
-				if (call.StartDate != default(DateTime))
-				{
-					var ce = g.Where(c => c.State != CallEventStates.Accepted).FirstOrDefault();
-					call.IsIncomming = ce.State == CallEventStates.IncommingCallFinished;
-					call.OtherPortId = call.IsIncomming ? ce.SourcePortId : ce.DestinationPortId;
-					call.Duration = ce.Date - call.StartDate;
+				Console.WriteLine("Call for port {0}", p1.PortId);
+				Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
+				Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
+				Console.WriteLine("Duration: {0}", call.Duration);
+			});
 
-					Console.WriteLine("Call for port {0}", p1.PortId);
-					Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
-					Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
-					Console.WriteLine("Duration: {0}", call.Duration);
-				}
+			Console.WriteLine();
 
-			}
+			//foreach (var g in calls)
+			//{
+			//	Call call;
+			//	call.StartDate = g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date).FirstOrDefault();
+			//	if (call.StartDate != default(DateTime))
+			//	{
+			//		var ce = g.Where(c => c.State != CallEventStates.Accepted).FirstOrDefault();
+			//		call.IsIncomming = ce.State == CallEventStates.IncommingCallFinished;
+			//		call.OtherPortId = call.IsIncomming ? ce.SourcePortId : ce.DestinationPortId;
+			//		call.Duration = ce.Date - call.StartDate;
+
+			//		Console.WriteLine("Call for port {0}", p1.PortId);
+			//		Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
+			//		Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
+			//		Console.WriteLine("Duration: {0}", call.Duration);
+			//	}
+
+			//}
 			//            ape.CallsLog.Where(e => e.SourcePortId.Equals(new IntId() {Id = 1}) && e.State == )
 		}
 	}
