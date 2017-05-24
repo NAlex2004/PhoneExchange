@@ -2,6 +2,6 @@ namespace NAlex.APE.Interfaces
 {
     public interface IPortFactory
     {
-        IPort CreatePort(IPortId portId);
+		IPort CreatePort(IPhoneExchange phoneExchange, IPortId portId);
     }
 }

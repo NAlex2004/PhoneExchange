@@ -161,6 +161,8 @@ namespace NAlex.APE
         {            
             Debug.WriteLine("[Port.OutgoingCallAccepted] PortId: {0}", PortId);
             Debug.WriteLine(e);            
+
+			OnCallAccepted(e);
         }
         //-----------------
         
@@ -177,6 +179,13 @@ namespace NAlex.APE
             if (CallEnded != null)
                 CallEnded(this, e);
         }
+
+		// Сигнал терминалу, что его звонок принят
+		protected virtual void OnCallAccepted(CallEventArgs e)
+		{
+			if (CallAccepted != null)
+				CallAccepted(this, e);
+		}
         
         // Сигнал для станции о звонке
         protected virtual void OnApeCallStarted(CallEventArgs e)

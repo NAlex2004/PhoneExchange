@@ -39,7 +39,7 @@ namespace NAlex.APE
 		{
 			// На события станции порт подпишится сам при событии PortAdded
 			// А на него - в конструкторе
-			IPort port = portFactory.CreatePort(_portId);
+			IPort port = portFactory.CreatePort(this, _portId);
 			_portId = _portId.NextValue();
 			port.ApeCallStarted += PortCallStarted;
 			port.ApeCallEnded += PortCallEnded;

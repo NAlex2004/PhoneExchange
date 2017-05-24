@@ -25,7 +25,7 @@ namespace TempTest
 		public static void Main(string[] args)
 		{
 			IPhoneExchange ape = new PhoneExchange((new IntId()).StartValue());
-			IPortFactory pFactory = new PePortFactory(ape);
+			IPortFactory pFactory = new PePortFactory();
 
 			IPort p1 = ape.CreatePort(pFactory);
 			IPort p2 = ape.CreatePort(pFactory);

@@ -4,16 +4,9 @@ namespace NAlex.APE.Factories
 {
     public class PePortFactory: IPortFactory
     {
-        private IPhoneExchange _phoneExchange;
-        
-        public PePortFactory(IPhoneExchange phoneExchange)
+        public IPort CreatePort(IPhoneExchange phoneExchange, IPortId portId)
         {
-            _phoneExchange = phoneExchange;
-        }
-        
-        public IPort CreatePort(IPortId portId)
-        {
-            return new Port(_phoneExchange, portId);
+            return new Port(phoneExchange, portId);
         }
     }
 }
