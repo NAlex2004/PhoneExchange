@@ -9,5 +9,6 @@ namespace NAlex.Billing
 		public TimeSpan Duration;
 		public IPortId OtherPortId;
 		public bool IsIncomming;
+		// стоимость.. можно получить из Tariff, передав один звонок
 	}
 }

@@ -9,10 +9,13 @@ namespace NAlex.Billing.Interfaces
 {
 	public interface IBilling
 	{
-		//IBillableExchange PhoneExchange { get; }
-		IEnumerable<Payment> Payments { get; }
-		IEnumerable<Contract> Contracts { get; }
+		IEnumerable<ISubscriber> Subscribers { get; }
 
-		IEnumerable<Call> Calls(Contract contract);
+		IEnumerable<Call> Calls(IContract contract);
+		IEnumerable<Payment> Payments(IContract contract);
+
+		void Pay(IContract contract, double amount);
+		ISubscriber Subscribe(string subscriberName, ITariff tariff);
+		bool Unsubscribe(ISubscriber subscriber);
 	}
 }
