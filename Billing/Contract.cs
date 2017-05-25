@@ -15,7 +15,7 @@ namespace NAlex.Billing
 		public ContractStates State { get; protected set; }
 		public int PaymentDay { get; protected set; }
 		
-		public bool ChangeTariff(ITariff newTariff)
+		public virtual bool ChangeTariff(ITariff newTariff)
 		{
 			bool res = newTariff != null && (DateTime.Now - TariffStartDate).Days >= _daysToChangeContract; 
 			if (res)

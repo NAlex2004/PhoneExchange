@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\ContractFactory.cs" />
+    <Compile Include="Factories\SubscriberFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\ITariff.cs" />
     <Compile Include="Call.cs" />
@@ -41,6 +42,7 @@
     <Compile Include="Interfaces\ISubscriber.cs" />
     <Compile Include="Interfaces\ISubscriberFactory.cs" />
     <Compile Include="Interfaces\IContractFactory.cs" />
+    <Compile Include="Subscriber.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\APE\APE.csproj">
