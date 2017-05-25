@@ -13,6 +13,6 @@ namespace NAlex.Billing.Interfaces
 		IEnumerable<Payment> Payments { get; }
 		IEnumerable<Contract> Contracts { get; }
 
-		IEnumerable<Call> GetCalls(Contract contract);
+		IEnumerable<Call> Calls(Contract contract);
 	}
 }

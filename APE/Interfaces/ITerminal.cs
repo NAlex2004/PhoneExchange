@@ -5,7 +5,7 @@ namespace NAlex.APE.Interfaces
 {
     public interface ITerminal
     {        
-        bool StartCall(IPortId portId); // void
+        bool StartCall(IPortId portId);
         void EndCall();
         void AcceptCall();
         

@@ -15,7 +15,5 @@ namespace NAlex.Billing
 
 		public abstract bool ChangeTariff(ITariff newTariff);
 
-
-
 	}
 }

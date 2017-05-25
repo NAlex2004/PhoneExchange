@@ -19,7 +19,7 @@ namespace NAlex.APE
         public event CallEventHandler CallReceived;
         
         
-        public bool StartCall(IPortId portId)
+        public virtual bool StartCall(IPortId portId)
         {
             if (PortState != PortStates.Connected)
                 return false;
@@ -36,7 +36,7 @@ namespace NAlex.APE
             return OnCallStarted(_call);
         }
 
-        public void EndCall()
+        public virtual void EndCall()
         {
             if (PortState != PortStates.Busy || _call == null || _port == null)
                 return;
@@ -48,7 +48,7 @@ namespace NAlex.APE
             OnCallEnded(eventArgs);                        
         }
 
-        public void AcceptCall()
+        public virtual void AcceptCall()
         {
             if (PortState != PortStates.Busy || _call == null || _port == null)
                 return;
@@ -60,7 +60,7 @@ namespace NAlex.APE
             OnCallAccepted(eventArgs);
         }
 
-        public PortStates PortState
+        public virtual PortStates PortState
         {
             get { return (_port == null ? PortStates.NotConnected : _port.PortState); }
         }
@@ -75,9 +75,9 @@ namespace NAlex.APE
             }
         }
 
-        //----------
-        // подписки
-
+        //-------------------------------------------------------------------------------------------------------------------
+        // Подписки
+		// Порт
         public virtual void PortStateChanged(object sender, PortEventArgs e)
         {            
             IPort port = sender as IPort;
@@ -141,7 +141,8 @@ namespace NAlex.APE
 
             _call = (CallEventArgs) e.Clone();
         }
-        //----------
+        
+		//-------------------------------------------------------------------------------------------------------------------
 
         protected virtual bool OnCallStarted(CallEventArgs e)
         {

@@ -35,7 +35,7 @@ namespace NAlex.APE
 			_portId = startPortId;
 		}
 
-		public IPort CreatePort(IPortFactory portFactory)
+		public virtual IPort CreatePort(IPortFactory portFactory)
 		{
 			// На события станции порт подпишится сам при событии PortAdded
 			// А на него - в конструкторе
@@ -48,6 +48,60 @@ namespace NAlex.APE
 			OnPortAdded(port);
 			return port;
 		}
+
+		//-------------------------------------------------------------------------------------------------------------------
+		// Подписки на события от портов
+		protected void PortCallStarted(object sender, CallEventArgs e)
+		{
+			OnCallPermissionCheck(e);
+			if (!e.IsAllowed)
+			{
+				e.State = CallEventStates.Denied;
+				OnCall(CallEnded, e, e.SourcePortId);
+				return;
+			}
+
+			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.DestinationPortId));
+			if (destPort != null)
+			{
+				if (destPort.PortState == PortStates.Connected)
+					OnCallStarted(e);
+				else
+				{
+					e.State = CallEventStates.Missed;
+					OnCall(CallEnded, e, e.SourcePortId);
+				}
+			}
+			else
+			{
+				// порт назначения не найден, ответ посылается источнику
+				e.State = CallEventStates.Invalid;
+				OnCall(CallEnded, e, e.SourcePortId);
+			}
+		}
+
+		protected void PortCallEnded(object sender, CallEventArgs e)
+		{
+			// разделить входящий и исходящий звонок
+			IPortId destPortId = e.State == CallEventStates.IncommingCallFinished
+				? e.SourcePortId
+				: e.DestinationPortId;
+
+			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(destPortId));
+			if (destPort != null)
+			{
+				OnCall(CallEnded, e, destPortId);
+			}
+		}
+
+		protected void PortCallAccepted(object sender, CallEventArgs e)
+		{
+			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.SourcePortId));
+			if (destPort != null)
+				OnCallAccepted(e);
+		}
+
+		// ----------------------------------------------------------------------------------------------------------
 
 		protected virtual void OnPortAdded(IPort port)
 		{
@@ -123,55 +177,6 @@ namespace NAlex.APE
 				e.IsAllowed = true;
 		}
 
-		// Подписки на события от портов
-		protected virtual void PortCallStarted(object sender, CallEventArgs e)
-		{
-			OnCallPermissionCheck(e);
-			if (!e.IsAllowed)
-			{
-				e.State = CallEventStates.Denied;
-				OnCall(CallEnded, e, e.SourcePortId);
-				return;
-			}
 
-			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.DestinationPortId));
-			if (destPort != null)
-			{
-				if (destPort.PortState == PortStates.Connected)
-					OnCallStarted(e);
-				else
-				{
-					e.State = CallEventStates.Missed;
-					OnCall(CallEnded, e, e.SourcePortId);
-				}
-			}
-			else
-			{
-				// порт назначения не найден, ответ посылается источнику
-				e.State = CallEventStates.Invalid;
-				OnCall(CallEnded, e, e.SourcePortId);
-			}
-		}
-
-		protected virtual void PortCallEnded(object sender, CallEventArgs e)
-		{
-			// разделить входящий и исходящий звонок
-			IPortId destPortId = e.State == CallEventStates.IncommingCallFinished
-				? e.SourcePortId
-				: e.DestinationPortId;
-
-			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(destPortId));
-			if (destPort != null)
-			{
-				OnCall(CallEnded, e, destPortId);
-			}
-		}
-
-		protected virtual void PortCallAccepted(object sender, CallEventArgs e)
-		{
-			var destPort = _ports.FirstOrDefault(p => p.PortId.Equals(e.SourcePortId));
-			if (destPort != null)
-				OnCallAccepted(e);
-		}
 	}
 }

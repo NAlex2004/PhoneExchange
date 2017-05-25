@@ -38,7 +38,7 @@ namespace NAlex.APE
             phoneExchange.PortAdded += PortAddedToApe;
         }
         
-        public bool Connect(ITerminal terminal)
+        public virtual bool Connect(ITerminal terminal)
         {
             if (terminal == null || _terminal != null)
                 return false;
@@ -54,7 +54,7 @@ namespace NAlex.APE
             return true;
         }
 
-        public void Disconnect()
+        public virtual void Disconnect()
         {
             if (_terminal != null)
             {
@@ -68,6 +68,9 @@ namespace NAlex.APE
             }
         }
 
+		//-------------------------------------------------------------------------------------------------------------------
+		// Подписки
+		// Станция	
         protected void PortAddedToApe(object sender, PortEventArgs e)
         {
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
@@ -131,7 +134,6 @@ namespace NAlex.APE
                         
             OnApeCallAccepted(e);
         }
-        // -----
         
         // Подписки на события от АТС 
         protected void IncommingCallReceived(object sender, CallEventArgs e)
@@ -164,7 +166,7 @@ namespace NAlex.APE
 
 			OnCallAccepted(e);
         }
-        //-----------------
+        //-------------------------------------------------------------------------------------------------------------------
         
         // Сигнал терминалу о звонке
         protected virtual void OnCallReceived(CallEventArgs e)
