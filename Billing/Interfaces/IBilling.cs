@@ -17,5 +17,7 @@ namespace NAlex.Billing.Interfaces
 		void Pay(IContract contract, double amount);
 		ISubscriber Subscribe(string subscriberName, ITariff tariff);
 		bool Unsubscribe(ISubscriber subscriber);
+
+		double Cost(IContract contract, Func<Call, bool> condition);
 	}
 }
