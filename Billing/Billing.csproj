@@ -30,6 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Billing.cs" />
+    <Compile Include="Events\ContractStateChangeEventArgs.cs" />
+    <Compile Include="Events\ContractStateChangeEventHandler.cs" />
     <Compile Include="Factories\ContractFactory.cs" />
     <Compile Include="Factories\SubscriberFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

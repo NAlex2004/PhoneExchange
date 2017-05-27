@@ -4,7 +4,7 @@ namespace NAlex.Billing
 	public enum ContractStates
 	{
 		Active,
-		Blocked,
+		Locked,
 		Completed
 	}
 }

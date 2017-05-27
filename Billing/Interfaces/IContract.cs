@@ -1,5 +1,6 @@
 ﻿using System;
 using NAlex.APE.Interfaces;
+using NAlex.Billing.Events;
 
 namespace NAlex.Billing.Interfaces
 {
@@ -9,9 +10,11 @@ namespace NAlex.Billing.Interfaces
 		ITariff Tariff { get; }
 		DateTime TariffStartDate { get; }
 		IPort Port { get; }
-		ContractStates State { get; }
+		ContractStates State { get; set; }
 		int PaymentDay { get; }
 
-		bool ChangeTariff(ITariff newTariff);
+		event ContractStateChangeEventHandler ContractStateChanging;
+		
+		bool ChangeTariff(ITariff newTariff);		
 	}
 }

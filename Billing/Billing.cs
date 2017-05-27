@@ -5,12 +5,15 @@ using NAlex.APE;
 using NAlex.APE.Enums;
 using NAlex.APE.Event;
 using NAlex.APE.Interfaces;
+using NAlex.Billing.Events;
 using NAlex.Billing.Interfaces;
 
 namespace NAlex.Billing
 {
     public class Billing: IBilling
     {
+        private bool _allowContractStateChange = false;
+        
         private IBillableExchange _phoneExchange;
         private IContractFactory _contractFactory;
         private ISubscriberFactory _subscriberFactory;
@@ -68,6 +71,7 @@ namespace NAlex.Billing
 
             ITerminal terminal = new Terminal();
             IContract contract = _contractFactory.CreateContract(tariff, _phoneExchange.CreatePort());
+            contract.ContractStateChanging += BillingContractStateChanging;
             ISubscriber subscriber = _subscriberFactory.CreateSubscriber(subscriberName, contract, terminal);
             _subscribers.Add(subscriber);
 
@@ -76,7 +80,17 @@ namespace NAlex.Billing
 
         public bool Unsubscribe(ISubscriber subscriber)
         {
-            throw new NotImplementedException();
+            if (_subscribers.Remove(subscriber))
+            {
+                subscriber.Contract.Port.Disconnect();
+                _phoneExchange.RemovePort(subscriber.Contract.Port);
+                _allowContractStateChange = true;
+                subscriber.Contract.State = ContractStates.Completed;
+                _allowContractStateChange = false;
+                subscriber.Contract.ContractStateChanging -= BillingContractStateChanging;
+            }
+
+            return false;
         }
 
         public double Cost(IContract contract, Func<Call, bool> condition)
@@ -84,6 +98,7 @@ namespace NAlex.Billing
             throw new NotImplementedException();
         }
 
+        // Подписки
 
         public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory)
         {
@@ -106,6 +121,12 @@ namespace NAlex.Billing
         protected virtual void BillingCallPermissionCheck(object sender, CallEventArgs e)
         {
             
+        }
+        
+        // Подписка на изменение состояния контракта
+        protected void BillingContractStateChanging(object sender, ContractStateChangeEventArgs e)
+        {            
+            e.ChangeAllowed = _allowContractStateChange;
         }
     }
 }
