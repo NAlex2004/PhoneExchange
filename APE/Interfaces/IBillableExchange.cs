@@ -4,9 +4,8 @@ using NAlex.APE.Event;
 
 namespace NAlex.APE.Interfaces
 {
-	public interface IBillableExchange
+	public interface IBillableExchange: IPhoneExchange
 	{
-//		IEnumerable<CallEventArgs> CallsLog { get; }
 		event CallEventHandler CallLog;
 		event CallEventHandler CallPermissionCheck;
 	}

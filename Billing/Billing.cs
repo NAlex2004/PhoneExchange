@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NAlex.APE;
+using NAlex.APE.Enums;
 using NAlex.APE.Event;
 using NAlex.APE.Interfaces;
 using NAlex.Billing.Interfaces;
@@ -23,22 +26,52 @@ namespace NAlex.Billing
         
         public IEnumerable<Call> Calls(IContract contract)
         {
-            throw new NotImplementedException();
+            return _callLog
+                .Where(c =>
+                    (c.SourcePortId.Equals(contract.Port.PortId) || c.DestinationPortId.Equals(contract.Port.PortId))
+                    &&
+                    (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
+                .GroupBy(g => g.CallId)
+                .SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
+                    (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
+                        .Select(r => new Call()
+                        {
+                            StartDate = cc,
+                            Duration = r.Date - cc,
+                            IsIncomming = r.State == CallEventStates.IncommingCallFinished,
+                            OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
+                        }).FirstOrDefault())
+                .Where(c => c.Duration != default(TimeSpan))
+                .ToArray();                
         }
 
         public IEnumerable<Payment> Payments(IContract contract)
         {
-            throw new NotImplementedException();
+            return _payments.Where(p => p.Contract.Equals(contract)).ToArray();
         }
 
-        public void Pay(IContract contract, double amount)
+        public bool Pay(IContract contract, double amount)
         {
-            throw new NotImplementedException();
+            if (_subscribers.Any(s => s.Contract.Equals(contract)) && amount > 0)
+            {
+                _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = DateTime.Now});
+                return true;
+            }
+
+            return false;
         }
 
         public ISubscriber Subscribe(string subscriberName, ITariff tariff)
         {
-            throw new NotImplementedException();
+            if (_subscribers.Any(s => s.Name.Equals(subscriberName)))
+                return null;
+
+            ITerminal terminal = new Terminal();
+            IContract contract = _contractFactory.CreateContract(tariff, _phoneExchange.CreatePort());
+            ISubscriber subscriber = _subscriberFactory.CreateSubscriber(subscriberName, contract, terminal);
+            _subscribers.Add(subscriber);
+
+            return subscriber;
         }
 
         public bool Unsubscribe(ISubscriber subscriber)

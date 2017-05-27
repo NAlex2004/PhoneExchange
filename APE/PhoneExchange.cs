@@ -7,11 +7,11 @@ using NAlex.APE.Interfaces;
 
 namespace NAlex.APE
 {
-	public class PhoneExchange : IPhoneExchange, IBillableExchange
+	public class PhoneExchange : IBillableExchange
 	{
 		private IList<IPort> _ports = new List<IPort>();
-//		private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
 		private IPortId _portId;
+		private IPortFactory _portFactory;
 
 		public event CallEventHandler CallStarted;
 		public event CallEventHandler CallEnded;
@@ -26,21 +26,17 @@ namespace NAlex.APE
 			get { return _ports; }
 		}
 
-		public IEnumerable<CallEventArgs> CallsLog
+		public PhoneExchange(IPortFactory portFactory, IPortId startPortId)
 		{
-			get { return _callLog; }
-		}
-
-		public PhoneExchange(IPortId startPortId)
-		{
+			_portFactory = portFactory;
 			_portId = startPortId;
 		}
 
-		public virtual IPort CreatePort(IPortFactory portFactory)
+		public virtual IPort CreatePort()
 		{
 			// На события станции порт подпишится сам при событии PortAdded
 			// А на него - в конструкторе
-			IPort port = portFactory.CreatePort(this, _portId);
+			IPort port = _portFactory.CreatePort(this, _portId);
 			_portId = _portId.NextValue();
 			port.ApeCallStarted += PortCallStarted;
 			port.ApeCallEnded += PortCallEnded;
@@ -50,6 +46,15 @@ namespace NAlex.APE
 			return port;
 		}
 
+		public bool RemovePort(IPort port)
+		{
+			port.ApeCallStarted -= PortCallStarted;
+			port.ApeCallEnded -= PortCallEnded;
+			port.ApeCallAccepted -= PortCallAccepted;
+			OnPortRemoved(port);
+			return _ports.Remove(port);
+		}
+		
 		//-------------------------------------------------------------------------------------------------------------------
 		// Подписки на события от портов
 		protected void PortCallStarted(object sender, CallEventArgs e)

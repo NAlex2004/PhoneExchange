@@ -23,13 +23,13 @@ namespace TempTest
 		}
 
 		public static void Main(string[] args)
-		{
-			IPhoneExchange ape = new PhoneExchange((new IntId()).StartValue());
+		{			
 			IPortFactory pFactory = new PePortFactory();
-
-			IPort p1 = ape.CreatePort(pFactory);
-			IPort p2 = ape.CreatePort(pFactory);
-			IPort p3 = ape.CreatePort(pFactory);
+			IPhoneExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());
+			
+			IPort p1 = ape.CreatePort();
+			IPort p2 = ape.CreatePort();
+			IPort p3 = ape.CreatePort();
 
 			ITerminal t1 = new Terminal();
 			ITerminal t2 = new Terminal();
@@ -58,34 +58,34 @@ namespace TempTest
 			t2.CallReceived -= CallReceived;
 			t1.CallReceived -= CallReceived;
 
-			var calls = (ape as IBillableExchange).CallsLog
-									  .Where(c =>
-											 (c.SourcePortId.Equals(p1.PortId) || c.DestinationPortId.Equals(p1.PortId))
-											 &&
-											 (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
-									  //.OrderBy(e => e.Date)
-									  .GroupBy(g => g.CallId);//, a => new { a.Date, a.SourcePortId, a.DestinationPortId, a.State, a.IsAllowed });
-															  //.ToList()
-															  //.ForEach(e => Console.WriteLine("{0}\n", e));
-
-			calls.SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
-							 (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
-							 .Select(r => new Call()
-							 {
-								 StartDate = cc,
-								 Duration = r.Date - cc,
-								 IsIncomming = r.State == CallEventStates.IncommingCallFinished,
-								 OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
-							 }).FirstOrDefault())
-			     .Where(c => c.Duration != default(TimeSpan))
-				 .ToList()
-				 .ForEach(call =>
-			{
-				Console.WriteLine("Call for port {0}", p1.PortId);
-				Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
-				Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
-				Console.WriteLine("Duration: {0}", call.Duration);
-			});
+//			var calls = (ape as IBillableExchange).CallsLog
+//									  .Where(c =>
+//											 (c.SourcePortId.Equals(p1.PortId) || c.DestinationPortId.Equals(p1.PortId))
+//											 &&
+//											 (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
+//									  //.OrderBy(e => e.Date)
+//									  .GroupBy(g => g.CallId);//, a => new { a.Date, a.SourcePortId, a.DestinationPortId, a.State, a.IsAllowed });
+//															  //.ToList()
+//															  //.ForEach(e => Console.WriteLine("{0}\n", e));
+//
+//			calls.SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
+//							 (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
+//							 .Select(r => new Call()
+//							 {
+//								 StartDate = cc,
+//								 Duration = r.Date - cc,
+//								 IsIncomming = r.State == CallEventStates.IncommingCallFinished,
+//								 OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
+//							 }).FirstOrDefault())
+//			     .Where(c => c.Duration != default(TimeSpan))
+//				 .ToList()
+//				 .ForEach(call =>
+//			{
+//				Console.WriteLine("Call for port {0}", p1.PortId);
+//				Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
+//				Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
+//				Console.WriteLine("Duration: {0}", call.Duration);
+//			});
 
 			Console.WriteLine();
 

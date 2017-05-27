@@ -14,7 +14,7 @@ namespace NAlex.Billing.Interfaces
 		IEnumerable<Call> Calls(IContract contract);
 		IEnumerable<Payment> Payments(IContract contract);
 
-		void Pay(IContract contract, double amount);
+		bool Pay(IContract contract, double amount);
 		ISubscriber Subscribe(string subscriberName, ITariff tariff);
 		bool Unsubscribe(ISubscriber subscriber);
 
