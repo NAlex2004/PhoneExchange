@@ -6,7 +6,8 @@ namespace NAlex.APE.Interfaces
 {
 	public interface IBillableExchange
 	{
-		IEnumerable<CallEventArgs> CallsLog { get; }
+//		IEnumerable<CallEventArgs> CallsLog { get; }
+		event CallEventHandler CallLog;
 		event CallEventHandler CallPermissionCheck;
 	}
 }

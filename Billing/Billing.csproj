@@ -43,6 +43,9 @@
     <Compile Include="Interfaces\ISubscriberFactory.cs" />
     <Compile Include="Interfaces\IContractFactory.cs" />
     <Compile Include="Subscriber.cs" />
+    <Compile Include="Tariffs\BaseTariff.cs" />
+    <Compile Include="Tariffs\CallTariff.cs" />
+    <Compile Include="Tariffs\SimpleTariff.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\APE\APE.csproj">

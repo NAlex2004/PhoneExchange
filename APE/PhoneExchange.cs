@@ -10,7 +10,7 @@ namespace NAlex.APE
 	public class PhoneExchange : IPhoneExchange, IBillableExchange
 	{
 		private IList<IPort> _ports = new List<IPort>();
-		private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
+//		private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
 		private IPortId _portId;
 
 		public event CallEventHandler CallStarted;
@@ -18,6 +18,7 @@ namespace NAlex.APE
 		public event CallEventHandler CallAccepted;
 		public event PortStateEventHandler PortAdded;
 		public event PortStateEventHandler PortRemoved;
+		public event CallEventHandler CallLog;
 		public event CallEventHandler CallPermissionCheck;
 
 		public IEnumerable<IPort> Ports
@@ -134,13 +135,15 @@ namespace NAlex.APE
 				// Вызвать событие только на порту назначения и для всех подписчиков - не портов
 				if (destPortHandler != null)
 				{
-					_callLog.Add(e);
+//					_callLog.Add(e);
+					OnCallLog(e);
 					destPortHandler(this, e);
 				}
 				else
 				{
 					e.State = CallEventStates.Invalid;
-					_callLog.Add(e);
+					OnCallLog(e);
+//					_callLog.Add(e);
 				}
 
 				foreach (var callEventHandler in invListOthers)
@@ -148,6 +151,12 @@ namespace NAlex.APE
 					callEventHandler(this, e);
 				}
 			}
+		}
+
+		protected virtual void OnCallLog(CallEventArgs e)
+		{
+			if (CallLog != null)
+				CallLog(this, e);
 		}
 
 		// Для портов
