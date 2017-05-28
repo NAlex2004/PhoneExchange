@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PhoneOperator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\APE\APE.csproj">

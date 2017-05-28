@@ -7,7 +7,7 @@ using NAlex.Billing;
 
 namespace NAlex.Billing.Interfaces
 {
-	public interface IBilling
+	public interface IBilling: IDisposable
 	{
 		IEnumerable<ISubscriber> Subscribers { get; }
 

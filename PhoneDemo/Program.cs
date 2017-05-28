@@ -20,6 +20,12 @@ namespace PhoneDemo
 	{		
 		public static void Main(string[] args)
 		{			
+			using (PhoneOperator demoOperator = new PhoneOperator())
+			{
+				
+			}
+
+
 			IDateTimeHelper dtHelper = new DateTimeHelper(100000);
 						
 			IPortFactory pFactory = new PePortFactory();
