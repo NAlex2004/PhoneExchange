@@ -15,6 +15,6 @@ namespace NAlex.Billing.Interfaces
 
 		event ContractStateChangeEventHandler ContractStateChanging;
 		
-		bool ChangeTariff(ITariff newTariff);		
+		bool ChangeTariff(IBilling billing, ITariff newTariff);		
 	}
 }

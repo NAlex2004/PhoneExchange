@@ -7,11 +7,13 @@ using NAlex.APE.Event;
 using NAlex.APE.Interfaces;
 using NAlex.Billing.Events;
 using NAlex.Billing.Interfaces;
+using NAlex.Helpers;
 
 namespace NAlex.Billing
 {
     public class Billing: IBilling
     {
+		private IDateTimeHelper _dtHelper;
         private bool _allowContractStateChange = false;
         
         private IBillableExchange _phoneExchange;
@@ -44,7 +46,7 @@ namespace NAlex.Billing
         {
             if (_subscribersFee.Keys.Any(s => s.Contract.Equals(contract)) && amount > 0)
             {
-                _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = DateTime.Now});
+                _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = _dtHelper.Now});
                 CheckContractBalance(contract);
                 return true;
             }
@@ -57,7 +59,7 @@ namespace NAlex.Billing
             if (_subscribersFee.Keys.Any(s => s.Name.Equals(subscriberName)))
                 return null;
 
-            ITerminal terminal = new Terminal();
+			ITerminal terminal = new Terminal(_dtHelper);
             IContract contract = _contractFactory.CreateContract(tariff, _phoneExchange.CreatePort());
             contract.ContractStateChanging += BillingContractStateChanging;
             ISubscriber subscriber = _subscriberFactory.CreateSubscriber(subscriberName, contract, terminal);
@@ -68,7 +70,7 @@ namespace NAlex.Billing
 
         public bool Unsubscribe(ISubscriber subscriber)
         {
-            if (Balance(subscriber.Contract, DateTime.Now) < 0)
+            if (Balance(subscriber.Contract, _dtHelper.Now) < 0)
                 return false;
             
             if (_subscribersFee.Remove(subscriber))
@@ -115,7 +117,7 @@ namespace NAlex.Billing
             if (contract.State == ContractStates.Completed)
                 return;
             
-            double balance = Balance(contract, DateTime.Now);
+            double balance = Balance(contract, _dtHelper.Now);
             _allowContractStateChange = true;
             if (balance >= 0)
             {
@@ -134,7 +136,7 @@ namespace NAlex.Billing
         {
             foreach (IContract contract in _subscribersFee.Keys.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
             {
-                if (contract.PaymentDay >= DateTime.Now.Day)
+                if (contract.PaymentDay >= _dtHelper.Now.Day)
                     CheckContractBalance(contract);
             }
         }
@@ -156,11 +158,13 @@ namespace NAlex.Billing
         
         // Подписки
 
-        public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory)
+		public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory, IDateTimeHelper dtHelper = null)
         {
             if (phoneExchange == null)
                 throw new ArgumentNullException(nameof(phoneExchange), "phoneExchange cannot be null.");
-            
+
+			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+
             _phoneExchange = phoneExchange;
             _contractFactory = contractFactory;
             _subscriberFactory = subscriberFactory;

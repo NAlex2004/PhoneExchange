@@ -4,6 +4,7 @@ using System.Linq;
 using NAlex.APE.Enums;
 using NAlex.APE.Event;
 using NAlex.APE.Interfaces;
+using NAlex.Helpers;
 
 namespace NAlex.APE
 {
@@ -11,6 +12,7 @@ namespace NAlex.APE
     {
         private IPort _port;
         private CallEventArgs _call;
+		private IDateTimeHelper _dtHelper;
 
         public event CallEventHandler CallStarted;
         public event CallEventHandler CallEnded;        
@@ -27,7 +29,7 @@ namespace NAlex.APE
 			_call = new CallEventArgs()
 			{
 				CallId = Guid.NewGuid(),
-                Date = DateTime.Now,
+                Date = _dtHelper.Now,
                 DestinationPortId = portId,
                 SourcePortId = _port != null ? _port.PortId : null,
                 State = CallEventStates.Started
@@ -43,7 +45,7 @@ namespace NAlex.APE
 
             CallEventArgs eventArgs = (CallEventArgs) _call.Clone();                        
             eventArgs.State = _call.SourcePortId == _port.PortId ? CallEventStates.OutgoingCallFinished : CallEventStates.IncommingCallFinished;
-            eventArgs.Date = DateTime.Now;
+            eventArgs.Date = _dtHelper.Now;
             _call = null;
             OnCallEnded(eventArgs);                        
         }
@@ -54,7 +56,7 @@ namespace NAlex.APE
                 return;
             
             _call.State = CallEventStates.Accepted;
-            _call.Date = DateTime.Now;
+            _call.Date = _dtHelper.Now;
             
             CallEventArgs eventArgs = (CallEventArgs) _call.Clone();                        
             OnCallAccepted(eventArgs);
@@ -79,10 +81,7 @@ namespace NAlex.APE
         // Подписки
 		// Порт
         public virtual void PortStateChanged(object sender, PortEventArgs e)
-        {            
-            if (_port == null)
-                return;
-            
+        {                        
             IPort port = sender as IPort;
             if (port != null && e != null && e.Port != null)
             {
@@ -94,14 +93,14 @@ namespace NAlex.APE
                 if (e.Port.PortState == PortStates.NotConnected)
                 {
                     // Есть незавершенный звонок
-                    if (_call != null)
+					if (_call != null && _port != null)
                     {
                         CallEventArgs eventArgs = (CallEventArgs) _call.Clone();
                         if (eventArgs.State == CallEventStates.Accepted)                            
                             eventArgs.State = _call.SourcePortId == _port.PortId ? CallEventStates.OutgoingCallFinished : CallEventStates.IncommingCallFinished;
                         else
                             eventArgs.State = CallEventStates.Missed;
-                        eventArgs.Date = DateTime.Now;
+                        eventArgs.Date = _dtHelper.Now;
                         _call = null;
                         OnCallEnded(eventArgs);  
                     }
@@ -176,5 +175,11 @@ namespace NAlex.APE
             if (CallAccepted != null)
                 CallAccepted(this, e);
         }
+
+
+		public Terminal(IDateTimeHelper dtHelper = null)
+		{
+			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+		}
     }
 }

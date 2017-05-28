@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APE", "APE\APE.csproj", "{E5645DFA-C29C-4997-B78C-C4A7D7869E7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempTest", "TempTest\TempTest.csproj", "{9714F5ED-D137-438B-8851-E205F950F117}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneDemo", "TempTest\PhoneDemo.csproj", "{9714F5ED-D137-438B-8851-E205F950F117}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing", "Billing\Billing.csproj", "{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}"
 EndProject

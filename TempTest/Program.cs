@@ -12,121 +12,53 @@ using NAlex.Billing;
 using NAlex.Billing.Factories;
 using NAlex.Billing.Interfaces;
 using NAlex.Helpers;
-using Timer = System.Timers.Timer;
+using NAlex.Billing.Tariffs;
 
-namespace TempTest
+namespace PhoneDemo
 {
 	internal class Program
 	{
-		static void CallReceived(object sender, CallEventArgs e)
-		{
-			ITerminal terminal = sender as ITerminal;
-			Thread.Sleep(1500);
-			//            terminal.EndCall();
-			terminal.AcceptCall();
-		}
 
 		public static void Main(string[] args)
 		{			
 			IDateTimeHelper dtHelper = new DateTimeHelper(100000);
-
-			for (int i = 0; i < 1000; i++)
-			{
-				Console.WriteLine(dtHelper.Now);
-				if (i == 100)
-					dtHelper.SetDayInterval(1000);
-				
-				Thread.Sleep(50);
-			}
-			
-			return;
-			
+						
 			IPortFactory pFactory = new PePortFactory();
-			IBillableExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());						
-			
-			IBilling billing = new Billing(ape, new ContractFactory(), new SubscriberFactory());
-			
-			IPort p1 = ape.CreatePort();
-			IPort p2 = ape.CreatePort();
-			IPort p3 = ape.CreatePort();
+			IBillableExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());									
+			IBilling billing = new Billing(ape, new ContractFactory(dtHelper), new SubscriberFactory(), dtHelper);
 
-			ITerminal t1 = new Terminal();
-			ITerminal t2 = new Terminal();
-			ITerminal t3 = new Terminal();
+			ISubscriber john = billing.Subscribe("John", new BaseTariff());
+			ISubscriber jack = billing.Subscribe("Jack", new CallTariff());
+			ISubscriber mary = billing.Subscribe("Mary", new CallTariff());
 
-			p1.Connect(t1);
-			p2.Connect(t2);
-			p2.Connect(t3);
-			p3.Connect(t3);
-			t2.CallReceived += CallReceived;
-			t1.StartCall(p2.PortId);
-			t2.StartCall(p3.PortId);
-			t3.StartCall(p1.PortId);
-			Thread.Sleep(2000);
-			t1.EndCall();
+			john.ConnectTerminal();
+			jack.ConnectTerminal();
+			mary.ConnectTerminal();
 
-			t1.CallReceived += CallReceived;
-			t2.StartCall(p1.PortId);
-			Thread.Sleep(1000);
+			john.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };
+			jack.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };				
+			mary.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };				
+
+			john.Terminal.StartCall(jack.PortId);
+			mary.Terminal.StartCall(john.PortId);
+
+			Thread.Sleep(100);
+
+			jack.Terminal.EndCall();
+			mary.Terminal.StartCall(john.PortId);
+
+			Thread.Sleep(100);
+
+			mary.Terminal.EndCall();
+
+			john.Terminal.StartCall(mary.PortId);
+
+			Thread.Sleep(100);
+
+			john.DisconnectTerminal();
 
 
-			t1.StartCall(p3.PortId);
-			p1.Disconnect();
-			p2.Disconnect();
-			p3.Disconnect();
-			t2.CallReceived -= CallReceived;
-			t1.CallReceived -= CallReceived;
-
-//			var calls = (ape as IBillableExchange).CallsLog
-//									  .Where(c =>
-//											 (c.SourcePortId.Equals(p1.PortId) || c.DestinationPortId.Equals(p1.PortId))
-//											 &&
-//											 (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
-//									  //.OrderBy(e => e.Date)
-//									  .GroupBy(g => g.CallId);//, a => new { a.Date, a.SourcePortId, a.DestinationPortId, a.State, a.IsAllowed });
-//															  //.ToList()
-//															  //.ForEach(e => Console.WriteLine("{0}\n", e));
-//
-//			calls.SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
-//							 (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
-//							 .Select(r => new Call()
-//							 {
-//								 StartDate = cc,
-//								 Duration = r.Date - cc,
-//								 IsIncomming = r.State == CallEventStates.IncommingCallFinished,
-//								 OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
-//							 }).FirstOrDefault())
-//			     .Where(c => c.Duration != default(TimeSpan))
-//				 .ToList()
-//				 .ForEach(call =>
-//			{
-//				Console.WriteLine("Call for port {0}", p1.PortId);
-//				Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
-//				Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
-//				Console.WriteLine("Duration: {0}", call.Duration);
-//			});
-
-			Console.WriteLine();
-
-			//foreach (var g in calls)
-			//{
-			//	Call call;
-			//	call.StartDate = g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date).FirstOrDefault();
-			//	if (call.StartDate != default(DateTime))
-			//	{
-			//		var ce = g.Where(c => c.State != CallEventStates.Accepted).FirstOrDefault();
-			//		call.IsIncomming = ce.State == CallEventStates.IncommingCallFinished;
-			//		call.OtherPortId = call.IsIncomming ? ce.SourcePortId : ce.DestinationPortId;
-			//		call.Duration = ce.Date - call.StartDate;
-
-			//		Console.WriteLine("Call for port {0}", p1.PortId);
-			//		Console.WriteLine("IsIncomming: {0}", call.IsIncomming);
-			//		Console.WriteLine("OtherPortId: {0}", call.OtherPortId);
-			//		Console.WriteLine("Duration: {0}", call.Duration);
-			//	}
-
-			//}
-			//            ape.CallsLog.Where(e => e.SourcePortId.Equals(new IntId() {Id = 1}) && e.State == )
+			billing.Calls(john.Contract).ToList().ForEach(c => Console.WriteLine(c));
 		}
 	}
 }

@@ -52,5 +52,11 @@
     <Folder Include="Interfaces\" />
     <Folder Include="Enums\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Helpers\Helpers.csproj">
+      <Project>{019A7633-7683-4610-A4DE-C9C2EB8C15FF}</Project>
+      <Name>Helpers</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

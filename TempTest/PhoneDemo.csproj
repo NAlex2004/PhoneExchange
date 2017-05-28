@@ -7,7 +7,7 @@
     <ProjectGuid>{9714F5ED-D137-438B-8851-E205F950F117}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TempTest</RootNamespace>
+    <RootNamespace>PhoneDemo</RootNamespace>
     <AssemblyName>TempTest</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

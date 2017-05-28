@@ -55,6 +55,10 @@
       <Project>{E5645DFA-C29C-4997-B78C-C4A7D7869E7B}</Project>
       <Name>APE</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Helpers\Helpers.csproj">
+      <Project>{019A7633-7683-4610-A4DE-C9C2EB8C15FF}</Project>
+      <Name>Helpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />

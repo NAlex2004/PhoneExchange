@@ -1,5 +1,6 @@
 ﻿using System;
 using NAlex.APE.Interfaces;
+using NAlex.Helpers;
 
 namespace NAlex.Billing.Interfaces
 {

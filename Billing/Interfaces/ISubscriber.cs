@@ -8,5 +8,9 @@ namespace NAlex.Billing.Interfaces
 		string Name { get; }
 		IContract Contract { get; }
 		ITerminal Terminal { get; }
+		IPortId PortId { get; }
+
+		bool ConnectTerminal();
+		void DisconnectTerminal();
 	}
 }

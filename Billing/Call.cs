@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using NAlex.APE.Interfaces;
 using NAlex.Billing.Interfaces;
 
@@ -14,9 +15,17 @@ namespace NAlex.Billing
 		public ITariff SourceTariff;
 		public ITariff DestinationTariff;
 		
-//		public IPortId OtherPortId;
-//		public bool IsIncomming;
-
-		// стоимость.. можно получить из Tariff, передав один звонок
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine("[CALL]");
+			sb.AppendLine(string.Format("CallId: {0}", CallId));
+			sb.AppendLine(string.Format("SourcePortId: {0}", SourcePortId));
+			sb.AppendLine(string.Format("DestinationPortId: {0}", DestinationPortId));
+			sb.AppendLine(string.Format("Date: {0}", StartDate));
+			sb.AppendLine(string.Format("Duration: {0}", Duration));
+			sb.AppendLine();
+			return sb.ToString();
+		}
 	}
 }

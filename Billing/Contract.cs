@@ -3,6 +3,7 @@ using System.Linq;
 using NAlex.Billing.Interfaces;
 using NAlex.APE.Interfaces;
 using NAlex.Billing.Events;
+using NAlex.Helpers;
 
 namespace NAlex.Billing
 {
@@ -10,6 +11,7 @@ namespace NAlex.Billing
 	{
 		private readonly int _daysToChangeContract;
 		private ContractStates _state;
+		private IDateTimeHelper _dtHelper;
 		
 		public DateTime Date { get; protected set; }
 		public ITariff Tariff { get; protected set; }
@@ -65,28 +67,30 @@ namespace NAlex.Billing
 			}
 		}
 		
-		public virtual bool ChangeTariff(ITariff newTariff)
+		public virtual bool ChangeTariff(IBilling billing, ITariff newTariff)
 		{
-			bool res = newTariff != null && (DateTime.Now - TariffStartDate).Days >= _daysToChangeContract;
+			bool res = newTariff != null && (_dtHelper.Now - TariffStartDate).Days >= _daysToChangeContract && billing.Balance(this, _dtHelper.Now) >= 0;
 			if (res)
-			{
+			{				
 				Tariff = newTariff;
-				TariffStartDate = DateTime.Now;
+				TariffStartDate = _dtHelper.Now;
 			}
 			return res;
 		}
 
-		public Contract(ITariff tariff, IPort port, int paymentDay, int daysToChangeContract)
+		public Contract(ITariff tariff, IPort port, int paymentDay, int daysToChangeContract, IDateTimeHelper dtHelper = null)
 		{
 			if (tariff == null)
 				throw new ArgumentNullException(nameof(tariff), "tariff cannot be null.");
 			if (port == null)
 				throw new ArgumentNullException(nameof(port), "port cannot be null.");
-			
+
+			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+
 			Tariff = tariff;
 			Port = port;
 			PaymentDay = paymentDay;
-			Date = DateTime.Now;
+			Date = _dtHelper.Now;
 			TariffStartDate = Date;
 			State = ContractStates.Active;
 			_daysToChangeContract = daysToChangeContract;
