@@ -67,9 +67,12 @@ namespace NAlex.Billing
 		
 		public virtual bool ChangeTariff(ITariff newTariff)
 		{
-			bool res = newTariff != null && (DateTime.Now - TariffStartDate).Days >= _daysToChangeContract; 
+			bool res = newTariff != null && (DateTime.Now - TariffStartDate).Days >= _daysToChangeContract;
 			if (res)
+			{
 				Tariff = newTariff;
+				TariffStartDate = DateTime.Now;
+			}
 			return res;
 		}
 

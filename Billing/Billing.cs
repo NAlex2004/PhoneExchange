@@ -44,8 +44,8 @@ namespace NAlex.Billing
                             IsIncomming = r.State == CallEventStates.IncommingCallFinished,
                             OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
                         }).FirstOrDefault())
-                .Where(c => c.Duration != default(TimeSpan))
-                .ToArray();                
+                .Where(c => c.Duration != default(TimeSpan));
+                //.ToArray();                
         }
 
         public IEnumerable<Payment> Payments(IContract contract)
@@ -95,7 +95,7 @@ namespace NAlex.Billing
 
         public double Cost(IContract contract, Func<Call, bool> condition)
         {
-            throw new NotImplementedException();
+            return contract.Tariff.TotalAmount(Calls(contract).Where(condition));
         }
 
         // Подписки
@@ -120,7 +120,11 @@ namespace NAlex.Billing
 
         protected virtual void BillingCallPermissionCheck(object sender, CallEventArgs e)
         {
-            
+            ISubscriber subscriber = _subscribers.FirstOrDefault(s => s.Contract.Port.PortId.Equals(e.SourcePortId));
+            if (subscriber != null && subscriber.Contract.State == ContractStates.Active)
+                e.IsAllowed = true;
+            else
+                e.IsAllowed = false;
         }
         
         // Подписка на изменение состояния контракта
