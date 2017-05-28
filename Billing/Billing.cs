@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using NAlex.APE;
 using NAlex.APE.Enums;
 using NAlex.APE.Event;
@@ -11,8 +12,11 @@ using NAlex.Helpers;
 
 namespace NAlex.Billing
 {
-    public class Billing: IBilling
+	public class Billing: IBilling, IDisposable
     {
+		private Timer _timer;
+		private bool _disposed = false;
+
 		private IDateTimeHelper _dtHelper;
         private bool _allowContractStateChange = false;
         
@@ -150,7 +154,7 @@ namespace NAlex.Billing
         }
         
         // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
-        protected virtual void OnDailyTask(object sender, EventArgs e)
+        protected virtual void DailyTask(object sender, EventArgs e)
         {
             AddFee(1);
             CheckContracts();
@@ -171,6 +175,11 @@ namespace NAlex.Billing
 
             _phoneExchange.CallLog += BillingCallLog;
             _phoneExchange.CallPermissionCheck += BillingCallPermissionCheck;
+
+			_timer = new Timer(_dtHelper.DayInterval);
+			_timer.AutoReset = true;
+			_timer.Elapsed += DailyTask;
+			_timer.Start();
         }
 
         protected virtual void BillingCallLog(object sender, CallEventArgs e)
@@ -229,5 +238,23 @@ namespace NAlex.Billing
         {            
             e.ChangeAllowed = _allowContractStateChange;
         }
-    }
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (_disposed)
+				return;
+
+			_timer.Stop();
+			_timer.Elapsed -= DailyTask;
+			_timer.Dispose();
+
+			_disposed = true;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+	}
 }
