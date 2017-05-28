@@ -51,13 +51,14 @@ namespace NAlex.Billing
         public IEnumerable<Payment> Payments(IContract contract)
         {
             return _payments.Where(p => p.Contract.Equals(contract)).ToArray();
-        }
-
+        }     
+        
         public bool Pay(IContract contract, double amount)
         {
             if (_subscribers.Any(s => s.Contract.Equals(contract)) && amount > 0)
             {
                 _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = DateTime.Now});
+                CheckContractBalance(contract);
                 return true;
             }
 
@@ -98,6 +99,49 @@ namespace NAlex.Billing
             return contract.Tariff.TotalAmount(Calls(contract).Where(condition));
         }
 
+        public virtual double Balance(IContract contract, DateTime date)
+        {
+            if (contract == null)
+                return 0;
+            if (contract.TariffStartDate > date)
+                return 0;
+            double sum = - contract.Tariff.TotalAmount(
+                Calls(contract).Where(c => c.StartDate >= contract.TariffStartDate),
+                 (date - contract.TariffStartDate).Days)
+                + _payments.Where(p => p.Contract.Equals(contract)).Sum(p => p.Amount);
+
+            return sum;
+        }
+
+        protected virtual void CheckContractBalance(IContract contract)
+        {
+            if (contract.State == ContractStates.Completed)
+                return;
+            
+            double balance = Balance(contract, DateTime.Now);
+            _allowContractStateChange = true;
+            if (balance >= 0)
+            {
+                if (contract.State == ContractStates.Locked)
+                    contract.State = ContractStates.Active;
+            }
+            else
+            {
+                if (contract.State == ContractStates.Active)
+                    contract.State = ContractStates.Locked;
+            }
+            _allowContractStateChange = false;
+        }
+
+        protected virtual void CheckAndLockContracts()
+        {
+            foreach (IContract contract in _subscribers.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
+            {
+                if (contract.PaymentDay >= DateTime.Now.Day)
+                    CheckContractBalance(contract);
+            }
+        }
+        
         // Подписки
 
         public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory)

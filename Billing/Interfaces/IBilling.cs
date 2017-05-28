@@ -19,5 +19,6 @@ namespace NAlex.Billing.Interfaces
 		bool Unsubscribe(ISubscriber subscriber);
 
 		double Cost(IContract contract, Func<Call, bool> condition);
+		double Balance(IContract contract, DateTime date);
 	}
 }

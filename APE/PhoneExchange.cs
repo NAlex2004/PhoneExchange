@@ -140,7 +140,6 @@ namespace NAlex.APE
 				// Вызвать событие только на порту назначения и для всех подписчиков - не портов
 				if (destPortHandler != null)
 				{
-//					_callLog.Add(e);
 					OnCallLog(e);
 					destPortHandler(this, e);
 				}
@@ -148,7 +147,6 @@ namespace NAlex.APE
 				{
 					e.State = CallEventStates.Invalid;
 					OnCallLog(e);
-//					_callLog.Add(e);
 				}
 
 				foreach (var callEventHandler in invListOthers)
