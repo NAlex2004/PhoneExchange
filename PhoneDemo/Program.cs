@@ -17,8 +17,7 @@ using NAlex.Billing.Tariffs;
 namespace PhoneDemo
 {
 	internal class Program
-	{
-
+	{		
 		public static void Main(string[] args)
 		{			
 			IDateTimeHelper dtHelper = new DateTimeHelper(100000);
@@ -58,7 +57,7 @@ namespace PhoneDemo
 			john.DisconnectTerminal();
 
 			dtHelper.SetDayInterval(1000);
-			Thread.Sleep(3000);
+			Thread.Sleep(2000);
 
 			billing.Calls(john.Contract).ToList().ForEach(c => Console.WriteLine(c));
 			Console.WriteLine(billing.Balance(jack.Contract, dtHelper.Now));
