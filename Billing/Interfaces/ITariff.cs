@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NAlex.APE.Interfaces;
 
 namespace NAlex.Billing.Interfaces
 {
@@ -8,6 +9,8 @@ namespace NAlex.Billing.Interfaces
 		double Fee { get; }
 		double Cost { get; }
 		string Description { get; }
-		double TotalAmount(IEnumerable<Call> calls, int days = 0);
+
+		double TotalFee(int days);
+		double CallCost(IPortId portId, Call call);
 	}
 }

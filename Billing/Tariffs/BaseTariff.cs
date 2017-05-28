@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using NAlex.APE.Interfaces;
 using NAlex.Billing.Interfaces;
 
 namespace NAlex.Billing.Tariffs
@@ -10,13 +11,15 @@ namespace NAlex.Billing.Tariffs
         public double Cost { get; protected set; }
         public string Description { get; protected set; }
         
-        public virtual double TotalAmount(IEnumerable<Call> calls, int days = 0)
+        public virtual double TotalFee(int days)
         {
-            if (calls == null)
-                return 0;
-
-            return calls.Where(c => !c.IsIncomming).Sum(c => c.Duration.Minutes) * Cost;
+            return 0;
         }
+
+        public virtual double CallCost(IPortId portId, Call call)
+        {
+            return call.SourcePortId.Equals(portId) ? call.Duration.TotalMinutes * Cost : 0;
+        }        
 
         public BaseTariff()
         {

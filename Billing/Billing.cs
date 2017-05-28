@@ -20,12 +20,13 @@ namespace NAlex.Billing
         
 //        private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
         private IList<Call> _callLog = new List<Call>();
-        private IList<ISubscriber> _subscribers = new List<ISubscriber>();
+        private IDictionary<ISubscriber, double> _subscribers = new Dictionary<ISubscriber, double>();
+//        private IList<ISubscriber> _subscribers = new List<ISubscriber>();
         private IList<Payment> _payments = new List<Payment>();
 
         public IEnumerable<ISubscriber> Subscribers
         {
-            get { return _subscribers; }
+            get { return _subscribers.Keys; }
         }
         
         public IEnumerable<Call> Calls(IContract contract)
@@ -42,7 +43,7 @@ namespace NAlex.Billing
         
         public bool Pay(IContract contract, double amount)
         {
-            if (_subscribers.Any(s => s.Contract.Equals(contract)) && amount > 0)
+            if (_subscribers.Keys.Any(s => s.Contract.Equals(contract)) && amount > 0)
             {
                 _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = DateTime.Now});
                 CheckContractBalance(contract);
@@ -54,7 +55,7 @@ namespace NAlex.Billing
 
         public ISubscriber Subscribe(string subscriberName, ITariff tariff)
         {
-            if (_subscribers.Any(s => s.Name.Equals(subscriberName)))
+            if (_subscribers.ContainsKey().Any(s => s.Name.Equals(subscriberName)))
                 return null;
 
             ITerminal terminal = new Terminal();
@@ -81,9 +82,12 @@ namespace NAlex.Billing
             return false;
         }
 
-        public double Cost(IContract contract, Func<Call, bool> condition)
+        public virtual double Cost(IContract contract, Func<Call, bool> condition)
         {
-            return contract.Tariff.TotalAmount(Calls(contract).Where(condition));
+            return Calls(contract).Where(condition)
+                .Sum(c => c.SourcePortId.Equals(contract.Port.PortId)
+                    ? c.SourceTariff.CallCost(c.SourcePortId, c)
+                    : c.DestinationTariff.CallCost(c.DestinationPortId, c));
         }
 
         public virtual double Balance(IContract contract, DateTime date)
@@ -120,13 +124,19 @@ namespace NAlex.Billing
             _allowContractStateChange = false;
         }
 
-        protected virtual void CheckAndLockContracts()
+        protected virtual void CheckContracts()
         {
             foreach (IContract contract in _subscribers.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
             {
                 if (contract.PaymentDay >= DateTime.Now.Day)
                     CheckContractBalance(contract);
             }
+        }
+        
+        // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
+        protected virtual void DailyTask(object sender, EventArgs e)
+        {
+            CheckContracts();
         }
         
         // Подписки

@@ -15,5 +15,14 @@ namespace NAlex.Billing
             Contract = contract;
             Terminal = terminal;
         }
+
+        public bool Equals(ISubscriber other)
+        {
+            if (other == null)
+                return false;
+            
+            return string.Equals(Name, other.Name);
+        }
+
     }
 }

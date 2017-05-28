@@ -10,10 +10,5 @@ namespace NAlex.Billing.Tariffs
             Cost = 0.03;
             Description = "Абонентская плата 3.25 р./30 дней, Исходящий звонок - 3 коп./минута.";                       
         }
-
-        public override double TotalAmount(IEnumerable<Call> calls, int days = 0)
-        {
-            return base.TotalAmount(calls, days) + days * Fee / 30;
-        }
     }
 }
