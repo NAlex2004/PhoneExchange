@@ -18,7 +18,8 @@ namespace NAlex.Billing
         private IContractFactory _contractFactory;
         private ISubscriberFactory _subscriberFactory;
         
-        private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
+//        private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
+        private IList<Call> _callLog = new List<Call>();
         private IList<ISubscriber> _subscribers = new List<ISubscriber>();
         private IList<Payment> _payments = new List<Payment>();
 
@@ -30,22 +31,8 @@ namespace NAlex.Billing
         public IEnumerable<Call> Calls(IContract contract)
         {
             return _callLog
-                .Where(c =>
-                    (c.SourcePortId.Equals(contract.Port.PortId) || c.DestinationPortId.Equals(contract.Port.PortId))
-                    &&
-                    (c.State == CallEventStates.Accepted || c.State == CallEventStates.IncommingCallFinished || c.State == CallEventStates.OutgoingCallFinished))
-                .GroupBy(g => g.CallId)
-                .SelectMany(g => g.Where(c => c.State == CallEventStates.Accepted).Select(c => c.Date),
-                    (c, cc) => c.Where(x => x.State != CallEventStates.Accepted)
-                        .Select(r => new Call()
-                        {
-                            StartDate = cc,
-                            Duration = r.Date - cc,
-                            IsIncomming = r.State == CallEventStates.IncommingCallFinished,
-                            OtherPortId = r.State == CallEventStates.IncommingCallFinished ? r.SourcePortId : r.DestinationPortId
-                        }).FirstOrDefault())
-                .Where(c => c.Duration != default(TimeSpan));
-                //.ToArray();                
+                .Where(c => (c.SourcePortId.Equals(contract.Port.PortId) || c.DestinationPortId.Equals(contract.Port.PortId)) 
+                            && c.Duration != TimeSpan.Zero);                                
         }
 
         public IEnumerable<Payment> Payments(IContract contract)
@@ -159,7 +146,44 @@ namespace NAlex.Billing
 
         protected virtual void BillingCallLog(object sender, CallEventArgs e)
         {
-            _callLog.Add(e);
+            Call call;
+            
+            switch (e.State)
+            {
+                case CallEventStates.Accepted:
+                    call  = _callLog.FirstOrDefault(c => c.CallId == e.CallId);
+                    if (call == null)
+                    {
+                        call = new Call()
+                        {
+                            CallId = e.CallId,
+                            SourcePortId = e.SourcePortId,
+                            DestinationPortId = e.DestinationPortId,
+                            StartDate = e.Date,
+                            SourceTariff = _subscribers.Where(s => s.Contract.Port.PortId.Equals(e.SourcePortId))
+                                .Select(s => s.Contract.Tariff)
+                                .FirstOrDefault(),
+                            DestinationTariff = _subscribers.Where(s => s.Contract.Port.PortId.Equals(e.DestinationPortId))
+                                .Select(s => s.Contract.Tariff)
+                                .FirstOrDefault(),
+                            Duration = TimeSpan.Zero
+                        };                        
+                        
+                        _callLog.Add(call);
+                    }       
+                    break;
+                case CallEventStates.IncommingCallFinished:
+                case CallEventStates.OutgoingCallFinished:
+                    call  = _callLog.FirstOrDefault(c => c.CallId == e.CallId);
+                    if (call != null)
+                    {
+                        if (call.Duration == TimeSpan.Zero)
+                        {                                                        
+                            call.Duration = e.Date - call.StartDate;
+                        }
+                    }
+                    break;             
+            }
         }
 
         protected virtual void BillingCallPermissionCheck(object sender, CallEventArgs e)
