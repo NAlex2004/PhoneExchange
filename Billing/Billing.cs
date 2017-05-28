@@ -18,15 +18,15 @@ namespace NAlex.Billing
         private IContractFactory _contractFactory;
         private ISubscriberFactory _subscriberFactory;
         
-//        private IList<CallEventArgs> _callLog = new List<CallEventArgs>();
         private IList<Call> _callLog = new List<Call>();
-        private IDictionary<ISubscriber, double> _subscribers = new Dictionary<ISubscriber, double>();
+        // Значение словаря - начисления абонентской платы
+        private IDictionary<ISubscriber, double> _subscribersFee = new Dictionary<ISubscriber, double>();
 //        private IList<ISubscriber> _subscribers = new List<ISubscriber>();
         private IList<Payment> _payments = new List<Payment>();
 
         public IEnumerable<ISubscriber> Subscribers
         {
-            get { return _subscribers.Keys; }
+            get { return _subscribersFee.Keys; }
         }
         
         public IEnumerable<Call> Calls(IContract contract)
@@ -43,7 +43,7 @@ namespace NAlex.Billing
         
         public bool Pay(IContract contract, double amount)
         {
-            if (_subscribers.Keys.Any(s => s.Contract.Equals(contract)) && amount > 0)
+            if (_subscribersFee.Keys.Any(s => s.Contract.Equals(contract)) && amount > 0)
             {
                 _payments.Add(new Payment() {Amount = amount, Contract = contract, Date = DateTime.Now});
                 CheckContractBalance(contract);
@@ -55,21 +55,24 @@ namespace NAlex.Billing
 
         public ISubscriber Subscribe(string subscriberName, ITariff tariff)
         {
-            if (_subscribers.ContainsKey().Any(s => s.Name.Equals(subscriberName)))
+            if (_subscribersFee.Keys.Any(s => s.Name.Equals(subscriberName)))
                 return null;
 
             ITerminal terminal = new Terminal();
             IContract contract = _contractFactory.CreateContract(tariff, _phoneExchange.CreatePort());
             contract.ContractStateChanging += BillingContractStateChanging;
             ISubscriber subscriber = _subscriberFactory.CreateSubscriber(subscriberName, contract, terminal);
-            _subscribers.Add(subscriber);
+            _subscribersFee.Add(new KeyValuePair<ISubscriber, double>(subscriber, 0));
 
             return subscriber;
         }
 
         public bool Unsubscribe(ISubscriber subscriber)
         {
-            if (_subscribers.Remove(subscriber))
+            if (Balance(subscriber.Contract, DateTime.Now) < 0)
+                return false;
+            
+            if (_subscribersFee.Remove(subscriber))
             {
                 subscriber.Contract.Port.Disconnect();
                 _phoneExchange.RemovePort(subscriber.Contract.Port);
@@ -77,6 +80,8 @@ namespace NAlex.Billing
                 subscriber.Contract.State = ContractStates.Completed;
                 _allowContractStateChange = false;
                 subscriber.Contract.ContractStateChanging -= BillingContractStateChanging;
+                
+                return true;
             }
 
             return false;
@@ -96,9 +101,11 @@ namespace NAlex.Billing
                 return 0;
             if (contract.TariffStartDate > date)
                 return 0;
-            double sum = - contract.Tariff.TotalAmount(
-                Calls(contract).Where(c => c.StartDate >= contract.TariffStartDate),
-                 (date - contract.TariffStartDate).Days)
+            ISubscriber subscriber = _subscribersFee.Keys.FirstOrDefault(s => s.Contract.Equals(contract));
+            if (subscriber == null)
+                return 0;
+            double sum = - Cost(contract, c => true)
+                - _subscribersFee[subscriber] // начисленная абонентская
                 + _payments.Where(p => p.Contract.Equals(contract)).Sum(p => p.Amount);
 
             return sum;
@@ -126,16 +133,25 @@ namespace NAlex.Billing
 
         protected virtual void CheckContracts()
         {
-            foreach (IContract contract in _subscribers.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
+            foreach (IContract contract in _subscribersFee.Keys.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
             {
                 if (contract.PaymentDay >= DateTime.Now.Day)
                     CheckContractBalance(contract);
+            }
+        }
+
+        protected virtual void AddFee(int days)
+        {
+            foreach (var subscriber in _subscribersFee.Keys)
+            {
+                _subscribersFee[subscriber] += subscriber.Contract.Tariff.TotalFee(days);
             }
         }
         
         // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
         protected virtual void DailyTask(object sender, EventArgs e)
         {
+            AddFee(1);
             CheckContracts();
         }
         
@@ -170,10 +186,10 @@ namespace NAlex.Billing
                             SourcePortId = e.SourcePortId,
                             DestinationPortId = e.DestinationPortId,
                             StartDate = e.Date,
-                            SourceTariff = _subscribers.Where(s => s.Contract.Port.PortId.Equals(e.SourcePortId))
+                            SourceTariff = _subscribersFee.Keys.Where(s => s.Contract.Port.PortId.Equals(e.SourcePortId))
                                 .Select(s => s.Contract.Tariff)
                                 .FirstOrDefault(),
-                            DestinationTariff = _subscribers.Where(s => s.Contract.Port.PortId.Equals(e.DestinationPortId))
+                            DestinationTariff = _subscribersFee.Keys.Where(s => s.Contract.Port.PortId.Equals(e.DestinationPortId))
                                 .Select(s => s.Contract.Tariff)
                                 .FirstOrDefault(),
                             Duration = TimeSpan.Zero
@@ -198,7 +214,7 @@ namespace NAlex.Billing
 
         protected virtual void BillingCallPermissionCheck(object sender, CallEventArgs e)
         {
-            ISubscriber subscriber = _subscribers.FirstOrDefault(s => s.Contract.Port.PortId.Equals(e.SourcePortId));
+            ISubscriber subscriber = _subscribersFee.Keys.FirstOrDefault(s => s.Contract.Port.PortId.Equals(e.SourcePortId));
             if (subscriber != null && subscriber.Contract.State == ContractStates.Active)
                 e.IsAllowed = true;
             else
