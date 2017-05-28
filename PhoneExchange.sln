@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempTest", "TempTest\TempTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing", "Billing\Billing.csproj", "{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "Helpers\Helpers.csproj", "{019A7633-7683-4610-A4DE-C9C2EB8C15FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,5 +27,9 @@ Global
 		{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{019A7633-7683-4610-A4DE-C9C2EB8C15FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{019A7633-7683-4610-A4DE-C9C2EB8C15FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{019A7633-7683-4610-A4DE-C9C2EB8C15FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{019A7633-7683-4610-A4DE-C9C2EB8C15FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -80,6 +80,9 @@ namespace NAlex.APE
 		// Порт
         public virtual void PortStateChanged(object sender, PortEventArgs e)
         {            
+            if (_port == null)
+                return;
+            
             IPort port = sender as IPort;
             if (port != null && e != null && e.Port != null)
             {

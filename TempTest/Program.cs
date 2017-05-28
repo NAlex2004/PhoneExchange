@@ -11,6 +11,7 @@ using NAlex.APE.Enums;
 using NAlex.Billing;
 using NAlex.Billing.Factories;
 using NAlex.Billing.Interfaces;
+using NAlex.Helpers;
 using Timer = System.Timers.Timer;
 
 namespace TempTest
@@ -27,8 +28,21 @@ namespace TempTest
 
 		public static void Main(string[] args)
 		{			
+			IDateTimeHelper dtHelper = new DateTimeHelper(100000);
+
+			for (int i = 0; i < 1000; i++)
+			{
+				Console.WriteLine(dtHelper.Now);
+				if (i == 100)
+					dtHelper.SetDayInterval(1000);
+				
+				Thread.Sleep(50);
+			}
+			
+			return;
+			
 			IPortFactory pFactory = new PePortFactory();
-			IPhoneExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());						
+			IBillableExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());						
 			
 			IBilling billing = new Billing(ape, new ContractFactory(), new SubscriberFactory());
 			

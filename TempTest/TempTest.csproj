@@ -52,6 +52,10 @@
       <Project>{D90305EA-2F98-4EB3-B9A9-7BEA281BD679}</Project>
       <Name>Billing</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Helpers\Helpers.csproj">
+      <Project>{019a7633-7683-4610-a4de-c9c2eb8c15ff}</Project>
+      <Name>Helpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
