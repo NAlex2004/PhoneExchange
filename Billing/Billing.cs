@@ -21,7 +21,6 @@ namespace NAlex.Billing
         private IList<Call> _callLog = new List<Call>();
         // Значение словаря - начисления абонентской платы
         private IDictionary<ISubscriber, double> _subscribersFee = new Dictionary<ISubscriber, double>();
-//        private IList<ISubscriber> _subscribers = new List<ISubscriber>();
         private IList<Payment> _payments = new List<Payment>();
 
         public IEnumerable<ISubscriber> Subscribers
@@ -149,7 +148,7 @@ namespace NAlex.Billing
         }
         
         // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
-        protected virtual void DailyTask(object sender, EventArgs e)
+        protected virtual void OnDailyTask(object sender, EventArgs e)
         {
             AddFee(1);
             CheckContracts();

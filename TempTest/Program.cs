@@ -9,6 +9,9 @@ using NAlex.APE.Factories;
 using NAlex.APE.Interfaces;
 using NAlex.APE.Enums;
 using NAlex.Billing;
+using NAlex.Billing.Factories;
+using NAlex.Billing.Interfaces;
+using Timer = System.Timers.Timer;
 
 namespace TempTest
 {
@@ -25,7 +28,9 @@ namespace TempTest
 		public static void Main(string[] args)
 		{			
 			IPortFactory pFactory = new PePortFactory();
-			IPhoneExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());
+			IPhoneExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());						
+			
+			IBilling billing = new Billing(ape, new ContractFactory(), new SubscriberFactory());
 			
 			IPort p1 = ape.CreatePort();
 			IPort p2 = ape.CreatePort();
