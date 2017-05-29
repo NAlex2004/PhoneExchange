@@ -54,13 +54,16 @@ namespace PhoneDemo
                 subscr1 = demoOperator.Billing.Subscribers.ElementAt(3);
                 subscr2 = demoOperator.Billing.Subscribers.ElementAt(0);
 
-                Console.WriteLine("\n\n-------- Calls for {0} (PortId = {1}) to {2} (PortId = {3}) Cost > 0.1 order by duration ------",
+                Console.WriteLine("\n\n--- Calls for {0} (PortId = {1}) to {2} (PortId = {3}) Cost > 0.1 order by duration ---",
                     subscr1.Name, subscr1.PortId,
                     subscr2.Name, subscr2.PortId);
 
-                demoOperator.Billing.Calls(subscr1.Contract).Where(c => c.DestinationPortId.Equals(subscr2.PortId))
+                demoOperator.Billing.Calls(subscr1.Contract)
+                    .Where(c => c.DestinationPortId.Equals(subscr2.PortId))
                     .Where(c => subscr1.Contract.Tariff.CallCost(subscr1.PortId, c) > 0.1)
-                    .OrderBy(c => c.Duration).ToList().ForEach(c => 
+                    .OrderBy(c => c.Duration)
+                    .ToList()
+                    .ForEach(c => 
                         {
                             Console.WriteLine(c);
                             Console.WriteLine("Cost: {0}", subscr1.Contract.Tariff.CallCost(subscr1.PortId, c));
