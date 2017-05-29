@@ -30,6 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DateTimeHelper.cs" />
+    <Compile Include="DayIntervalChangedEventHandler.cs" />
+    <Compile Include="DayIntervalEventArgs.cs" />
     <Compile Include="DefaultDateTimeHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IDateTimeHelper.cs" />

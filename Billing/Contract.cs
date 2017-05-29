@@ -81,9 +81,9 @@ namespace NAlex.Billing
 		public Contract(ITariff tariff, IPort port, int paymentDay, int daysToChangeContract, IDateTimeHelper dtHelper = null)
 		{
 			if (tariff == null)
-				throw new ArgumentNullException(nameof(tariff), "tariff cannot be null.");
+				throw new ArgumentNullException("tariff", "tariff cannot be null.");
 			if (port == null)
-				throw new ArgumentNullException(nameof(port), "port cannot be null.");
+				throw new ArgumentNullException("port", "port cannot be null.");
 
 			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
 

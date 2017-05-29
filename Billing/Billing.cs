@@ -12,12 +12,12 @@ using NAlex.Helpers;
 
 namespace NAlex.Billing
 {
-	public class Billing: IBilling, IDisposable
+    public class Billing: IBilling, IDisposable
     {
-		private Timer _timer;
-		private bool _disposed = false;
+        private Timer _timer;
+        private bool _disposed = false;
 
-		private IDateTimeHelper _dtHelper;
+        private IDateTimeHelper _dtHelper;
         private bool _allowContractStateChange = false;
         
         private IBillableExchange _phoneExchange;
@@ -63,7 +63,7 @@ namespace NAlex.Billing
             if (_subscribersFee.Keys.Any(s => s.Name.Equals(subscriberName)))
                 return null;
 
-			ITerminal terminal = new Terminal(_dtHelper);
+            ITerminal terminal = new Terminal(_dtHelper);
             IContract contract = _contractFactory.CreateContract(tariff, _phoneExchange.CreatePort());
             contract.ContractStateChanging += BillingContractStateChanging;
             ISubscriber subscriber = _subscriberFactory.CreateSubscriber(subscriberName, contract, terminal);
@@ -138,9 +138,10 @@ namespace NAlex.Billing
 
         protected virtual void CheckContracts()
         {
+            DateTime now = _dtHelper.Now;
             foreach (IContract contract in _subscribersFee.Keys.Where(s => s.Contract.State != ContractStates.Completed).Select(s => s.Contract))
             {
-                if (contract.PaymentDay >= _dtHelper.Now.Day)
+                if (contract.PaymentDay == now.Day)
                     CheckContractBalance(contract);
             }
         }
@@ -151,23 +152,15 @@ namespace NAlex.Billing
             {
                 _subscribersFee[subscriber] += subscriber.Contract.Tariff.TotalFee(days);
             }
-        }
-        
-        // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
-        protected virtual void DailyTask(object sender, EventArgs e)
-        {
-            AddFee(1);
-            CheckContracts();
-        }
-        
-        // Подписки
-
-		public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory, IDateTimeHelper dtHelper = null)
+        }                
+                
+        public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory, IDateTimeHelper dtHelper = null)
         {
             if (phoneExchange == null)
-                throw new ArgumentNullException(nameof(phoneExchange), "phoneExchange cannot be null.");
+                throw new ArgumentNullException("phoneExchange", "phoneExchange cannot be null.");
 
-			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+            _dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+            _dtHelper.DayIntervalChanged += BillingDayIntervalChanged;
 
             _phoneExchange = phoneExchange;
             _contractFactory = contractFactory;
@@ -176,10 +169,27 @@ namespace NAlex.Billing
             _phoneExchange.CallLog += BillingCallLog;
             _phoneExchange.CallPermissionCheck += BillingCallPermissionCheck;
 
-			_timer = new Timer(_dtHelper.DayInterval);
-			_timer.AutoReset = true;
-			_timer.Elapsed += DailyTask;
-			_timer.Start();
+            _timer = new Timer(_dtHelper.DayInterval);
+            _timer.AutoReset = true;
+            _timer.Elapsed += DailyTask;
+            _timer.Start();
+        }
+
+        
+        // Подписки
+
+        // Подписка на событие, происходящее, скажем, раз в день для проверок и расчетов
+        protected virtual void DailyTask(object sender, EventArgs e)
+        {
+            AddFee(1);
+            CheckContracts();
+        }
+        
+        protected virtual void BillingDayIntervalChanged(object sender, DayIntervalEventArgs e)
+        {
+            _timer.Stop();
+            _timer.Interval = e.NewInterval;
+            _timer.Start();
         }
 
         protected virtual void BillingCallLog(object sender, CallEventArgs e)
@@ -239,21 +249,22 @@ namespace NAlex.Billing
             e.ChangeAllowed = _allowContractStateChange;
         }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (_disposed)
-				return;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
 
-			_timer.Stop();
-			_timer.Elapsed -= DailyTask;
-			_timer.Dispose();
+            _timer.Stop();
+            _timer.Elapsed -= DailyTask;
+            _timer.Dispose();
+            _dtHelper.DayIntervalChanged -= BillingDayIntervalChanged;
 
-			_disposed = true;
-		}
+            _disposed = true;
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-		}
-	}
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+    }
 }

@@ -20,5 +20,7 @@ namespace NAlex.Helpers
         {
             
         }
+
+        public event DayIntervalChangedEventHandler DayIntervalChanged;
     }
 }

@@ -28,11 +28,11 @@ namespace NAlex.APE
         public Port(IPhoneExchange phoneExchange, IPortId portId)
         {
             if (phoneExchange == null)
-                throw new ArgumentNullException(nameof(phoneExchange), "phoneExchange cannot be null.");
-			if (portId == null)
-				throw new ArgumentNullException(nameof(portId), "portId cannot be null.");
+                throw new ArgumentNullException("phoneExchange", "phoneExchange cannot be null.");
+            if (portId == null)
+                throw new ArgumentNullException("portId", "portId cannot be null.");
 
-			PortId = portId;
+            PortId = portId;
             PortState = PortStates.NotConnected;
 
             phoneExchange.PortAdded += PortAddedToApe;
@@ -68,9 +68,9 @@ namespace NAlex.APE
             }
         }
 
-		//-------------------------------------------------------------------------------------------------------------------
-		// Подписки
-		// Станция	
+        //-------------------------------------------------------------------------------------------------------------------
+        // Подписки
+        // Станция	
         protected void PortAddedToApe(object sender, PortEventArgs e)
         {
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
@@ -164,7 +164,7 @@ namespace NAlex.APE
             Debug.WriteLine("[Port.OutgoingCallAccepted] PortId: {0}", PortId);
             Debug.WriteLine(e);            
 
-			OnCallAccepted(e);
+            OnCallAccepted(e);
         }
         //-------------------------------------------------------------------------------------------------------------------
         
@@ -182,12 +182,12 @@ namespace NAlex.APE
                 CallEnded(this, e);
         }
 
-		// Сигнал терминалу, что его звонок принят
-		protected virtual void OnCallAccepted(CallEventArgs e)
-		{
-			if (CallAccepted != null)
-				CallAccepted(this, e);
-		}
+        // Сигнал терминалу, что его звонок принят
+        protected virtual void OnCallAccepted(CallEventArgs e)
+        {
+            if (CallAccepted != null)
+                CallAccepted(this, e);
+        }
         
         // Сигнал для станции о звонке
         protected virtual void OnApeCallStarted(CallEventArgs e)

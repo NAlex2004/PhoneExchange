@@ -2,11 +2,13 @@
 
 namespace NAlex.Helpers
 {
-	public interface IDateTimeHelper
-	{
-		DateTime Now { get; }
-		int DayInterval { get; }
+    public interface IDateTimeHelper
+    {
+        DateTime Now { get; }
+        int DayInterval { get; }
 
-		void SetDayInterval(int intervalMs);
-	}
+        event DayIntervalChangedEventHandler DayIntervalChanged;
+
+        void SetDayInterval(int intervalMs);
+    }
 }
