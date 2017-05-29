@@ -98,8 +98,8 @@ namespace PhoneDemo
             if (days > 0)
             {
                 int dayInterval = dtHelper.DayInterval;
-                dtHelper.SetDayInterval(100);
-                Thread.Sleep(days * 100);
+                dtHelper.SetDayInterval(200);
+                Thread.Sleep(days * 200);
                 dtHelper.SetDayInterval(dayInterval);
                 Console.WriteLine();
                 Console.WriteLine("... Passed {0} days ...", days);
@@ -116,13 +116,14 @@ namespace PhoneDemo
             Console.WriteLine("-------- Make some payments.. ----------");
         }
 
-        public void WriteBalance()
+        public void WriteBalance(ISubscriber subscr = null)
         {
             DateTime now = dtHelper.Now;
             Console.WriteLine();
             Console.WriteLine("----------- Balance on date: {0} -------------", now);
             Console.WriteLine();
-            foreach (var subscriber in Billing.Subscribers)
+            var subscribers = subscr == null ? Billing.Subscribers : Billing.Subscribers.Where(s => s.Equals(subscr));
+            foreach (var subscriber in subscribers)
             {
                 Console.WriteLine("Subscriber: {0}", subscriber.Name);
                 Console.WriteLine("Tariff: {0}", subscriber.Contract.Tariff);
@@ -152,8 +153,17 @@ namespace PhoneDemo
             Billing.Calls(contract).Where(condition).ToList()
                 .ForEach(c =>
                 {
-                    Console.WriteLine(c);                    
+                    Console.WriteLine(c);
+                    Console.WriteLine("Cost: {0}", contract.Tariff.CallCost(contract.Port.PortId, c));
+                    Console.WriteLine();
                 });
+        }
+
+        public void ChangeTariff(ISubscriber subscr, ITariff tariff)
+        {
+            Console.WriteLine("------------- Change tariff for {0} --------------", subscr.Name);
+            Console.WriteLine("New tariff: {0}", tariff);
+            Console.WriteLine("Success: {0}", subscr.Contract.ChangeTariff(Billing, tariff));
         }
 
         #region IDisposable Support
