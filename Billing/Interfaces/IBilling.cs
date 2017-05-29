@@ -7,18 +7,19 @@ using NAlex.Billing;
 
 namespace NAlex.Billing.Interfaces
 {
-	public interface IBilling: IDisposable
-	{
-		IEnumerable<ISubscriber> Subscribers { get; }
+    public interface IBilling: IDisposable
+    {
+        IEnumerable<ISubscriber> Subscribers { get; }
 
-		IEnumerable<Call> Calls(IContract contract);
-		IEnumerable<Payment> Payments(IContract contract);
+        IEnumerable<Call> Calls(IContract contract);
+        IEnumerable<Call> Calls();
+        IEnumerable<Payment> Payments(IContract contract);
 
-		bool Pay(IContract contract, double amount);
-		ISubscriber Subscribe(string subscriberName, ITariff tariff);
-		bool Unsubscribe(ISubscriber subscriber);
+        bool Pay(IContract contract, double amount);
+        ISubscriber Subscribe(string subscriberName, ITariff tariff);
+        bool Unsubscribe(ISubscriber subscriber);
 
-		double Cost(IContract contract, Func<Call, bool> condition);
-		double Balance(IContract contract, DateTime date);
-	}
+        double Cost(IContract contract, Func<Call, bool> condition);
+        double Balance(IContract contract);//, DateTime date);
+    }
 }

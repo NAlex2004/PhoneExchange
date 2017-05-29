@@ -76,7 +76,7 @@ namespace NAlex.APE
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
             if (phoneExchange != null && e != null && e.Port == this)
             {
-                Debug.WriteLine("[Port.PortAddedToApe] PortId: {0}", e.Port.PortId);
+                //Debug.WriteLine("[Port.PortAddedToApe] PortId: {0}", e.Port.PortId);
                 
                 phoneExchange.PortAdded -= PortAddedToApe;
                 phoneExchange.PortRemoved += PortRemovedFromApe;
@@ -91,7 +91,7 @@ namespace NAlex.APE
             IPhoneExchange phoneExchange = sender as IPhoneExchange;
             if (phoneExchange != null && e != null && e.Port == this)
             {
-                Debug.WriteLine("[Port.PortRemovedFromApe] PortId: {0}", e.Port.PortId);
+                //Debug.WriteLine("[Port.PortRemovedFromApe] PortId: {0}", e.Port.PortId);
                 
                 phoneExchange.PortRemoved -= PortRemovedFromApe;
                 phoneExchange.CallStarted -= IncommingCallReceived;
@@ -105,8 +105,8 @@ namespace NAlex.APE
         // Подписки на события от подключенного терминала
         protected void TerminalCallStarted(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Port.TerminalCallStarted] PortId: {0}", PortId);
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Port.TerminalCallStarted] PortId: {0}", PortId);
+            //Debug.WriteLine(e);
             
             PortState = PortStates.Busy;
             if (e != null && e.SourcePortId == null)
@@ -118,8 +118,8 @@ namespace NAlex.APE
         // Как входящий, так и исходящий
         protected void TerminalCallEnded(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Port.TerminalCallEnded] PortId: {0}", PortId);
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Port.TerminalCallEnded] PortId: {0}", PortId);
+            //Debug.WriteLine(e);
             
             if (PortState != PortStates.NotConnected)
                 PortState = PortStates.Connected;
@@ -129,8 +129,8 @@ namespace NAlex.APE
 
         protected void TerminalCallAccepted(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Port.TerminalCallAccepted] PortId: {0}", PortId);
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Port.TerminalCallAccepted] PortId: {0}", PortId);
+            //Debug.WriteLine(e);
                         
             OnApeCallAccepted(e);
         }
@@ -140,8 +140,8 @@ namespace NAlex.APE
         {            
             PortState = PortStates.Busy;
             
-            Debug.WriteLine("[Port.IncommingCallReceived] PortId: {0}", PortId);
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Port.IncommingCallReceived] PortId: {0}", PortId);
+            //Debug.WriteLine(e);
             
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnCallReceived(e);
@@ -152,8 +152,8 @@ namespace NAlex.APE
             if (PortState != PortStates.NotConnected)
                 PortState = PortStates.Connected;
             
-            Debug.WriteLine("[Port.IncommingCallEnded] PortId: {0}", PortId);
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Port.IncommingCallEnded] PortId: {0}", PortId);
+            //Debug.WriteLine(e);
             
             OnPortStateChanged(new PortEventArgs() {Port = this});
             OnCallEnded(e);
@@ -161,8 +161,8 @@ namespace NAlex.APE
         
         protected void OutgoingCallAccepted(object sender, CallEventArgs e)
         {            
-            Debug.WriteLine("[Port.OutgoingCallAccepted] PortId: {0}", PortId);
-            Debug.WriteLine(e);            
+            //Debug.WriteLine("[Port.OutgoingCallAccepted] PortId: {0}", PortId);
+            //Debug.WriteLine(e);            
 
             OnCallAccepted(e);
         }

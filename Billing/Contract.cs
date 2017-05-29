@@ -69,7 +69,7 @@ namespace NAlex.Billing
 		
 		public virtual bool ChangeTariff(IBilling billing, ITariff newTariff)
 		{
-			bool res = newTariff != null && (_dtHelper.Now - TariffStartDate).Days >= _daysToChangeContract && billing.Balance(this, _dtHelper.Now) >= 0;
+			bool res = newTariff != null && (_dtHelper.Now - TariffStartDate).Days >= _daysToChangeContract && billing.Balance(this) >= 0;
 			if (res)
 			{				
 				Tariff = newTariff;

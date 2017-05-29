@@ -41,6 +41,11 @@ namespace NAlex.Billing
                             && c.Duration != TimeSpan.Zero);                                
         }
 
+        public IEnumerable<Call> Calls()
+        {
+            return _callLog;
+        }
+
         public IEnumerable<Payment> Payments(IContract contract)
         {
             return _payments.Where(p => p.Contract.Equals(contract)).ToArray();
@@ -74,7 +79,7 @@ namespace NAlex.Billing
 
         public bool Unsubscribe(ISubscriber subscriber)
         {
-            if (Balance(subscriber.Contract, _dtHelper.Now) < 0)
+            if (Balance(subscriber.Contract) < 0)
                 return false;
             
             if (_subscribersFee.Remove(subscriber))
@@ -100,12 +105,10 @@ namespace NAlex.Billing
                     : c.DestinationTariff.CallCost(c.DestinationPortId, c));
         }
 
-        public virtual double Balance(IContract contract, DateTime date)
+        public virtual double Balance(IContract contract)
         {
             if (contract == null)
-                return 0;
-            if (contract.TariffStartDate > date)
-                return 0;
+                return 0;            
             ISubscriber subscriber = _subscribersFee.Keys.FirstOrDefault(s => s.Contract.Equals(contract));
             if (subscriber == null)
                 return 0;
@@ -121,7 +124,7 @@ namespace NAlex.Billing
             if (contract.State == ContractStates.Completed)
                 return;
             
-            double balance = Balance(contract, _dtHelper.Now);
+            double balance = Balance(contract);
             _allowContractStateChange = true;
             if (balance >= 0)
             {
@@ -148,10 +151,11 @@ namespace NAlex.Billing
 
         protected virtual void AddFee(int days)
         {
-            foreach (var subscriber in _subscribersFee.Keys)
+            for (int i = 0; i < _subscribersFee.Count; i++ )
             {
+                var subscriber = _subscribersFee.Keys.ElementAt(i);
                 _subscribersFee[subscriber] += subscriber.Contract.Tariff.TotalFee(days);
-            }
+            }            
         }                
                 
         public Billing(IBillableExchange phoneExchange, IContractFactory contractFactory, ISubscriberFactory subscriberFactory, IDateTimeHelper dtHelper = null)
@@ -265,6 +269,6 @@ namespace NAlex.Billing
         public void Dispose()
         {
             Dispose(true);
-        }
+        }        
     }
 }

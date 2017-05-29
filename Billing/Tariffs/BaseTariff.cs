@@ -13,7 +13,7 @@ namespace NAlex.Billing.Tariffs
         
         public virtual double TotalFee(int days)
         {
-            return 0;
+            return days * Fee / 30;
         }
 
         public virtual double CallCost(IPortId portId, Call call)

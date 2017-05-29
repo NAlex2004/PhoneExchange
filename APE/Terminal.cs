@@ -12,7 +12,7 @@ namespace NAlex.APE
     {
         private IPort _port;
         private CallEventArgs _call;
-		private IDateTimeHelper _dtHelper;
+        private IDateTimeHelper _dtHelper;
 
         public event CallEventHandler CallStarted;
         public event CallEventHandler CallEnded;        
@@ -26,9 +26,9 @@ namespace NAlex.APE
             if (PortState != PortStates.Connected)
                 return false;
 
-			_call = new CallEventArgs()
-			{
-				CallId = Guid.NewGuid(),
+            _call = new CallEventArgs()
+            {
+                CallId = Guid.NewGuid(),
                 Date = _dtHelper.Now,
                 DestinationPortId = portId,
                 SourcePortId = _port != null ? _port.PortId : null,
@@ -79,7 +79,7 @@ namespace NAlex.APE
 
         //-------------------------------------------------------------------------------------------------------------------
         // Подписки
-		// Порт
+        // Порт
         public virtual void PortStateChanged(object sender, PortEventArgs e)
         {                        
             IPort port = sender as IPort;
@@ -88,12 +88,12 @@ namespace NAlex.APE
                 if (_port != null && _port != e.Port)
                     return;
                 
-                Debug.WriteLine("[Terminal.PortStateChanged] Port: {0}, State: {1}", e.Port.PortId.Value, e.Port.PortState);
+                //Debug.WriteLine("[Terminal.PortStateChanged] Port: {0}, State: {1}", e.Port.PortId.Value, e.Port.PortState);
                 
                 if (e.Port.PortState == PortStates.NotConnected)
                 {
                     // Есть незавершенный звонок
-					if (_call != null && _port != null)
+                    if (_call != null && _port != null)
                     {
                         CallEventArgs eventArgs = (CallEventArgs) _call.Clone();
                         if (eventArgs.State == CallEventStates.Accepted)                            
@@ -121,8 +121,8 @@ namespace NAlex.APE
 
         protected void IncommingCallReceived(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Terminal.IncommingCallReceived]");
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Terminal.IncommingCallReceived]");
+            //Debug.WriteLine(e);
             
             _call = (CallEventArgs) e.Clone();
             OnCallReceived(e);            
@@ -130,21 +130,21 @@ namespace NAlex.APE
 
         protected void IncommingCallEnded(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Terminal.IncommingCallEnded]");
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Terminal.IncommingCallEnded]");
+            //Debug.WriteLine(e);
             
             _call = null;
         }
 
         protected void OutgoingCallAccepted(object sender, CallEventArgs e)
         {
-            Debug.WriteLine("[Terminal.OutgoingCallAccepted]");
-            Debug.WriteLine(e);
+            //Debug.WriteLine("[Terminal.OutgoingCallAccepted]");
+            //Debug.WriteLine(e);
 
             _call = (CallEventArgs) e.Clone();
         }
         
-		//-------------------------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------------------------
 
         protected virtual bool OnCallStarted(CallEventArgs e)
         {
@@ -177,9 +177,9 @@ namespace NAlex.APE
         }
 
 
-		public Terminal(IDateTimeHelper dtHelper = null)
-		{
-			_dtHelper = dtHelper ?? new DefaultDateTimeHelper();
-		}
+        public Terminal(IDateTimeHelper dtHelper = null)
+        {
+            _dtHelper = dtHelper ?? new DefaultDateTimeHelper();
+        }
     }
 }

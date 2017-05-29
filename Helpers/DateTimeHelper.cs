@@ -38,6 +38,10 @@ namespace NAlex.Helpers
             if (intervalMs > 0 && intervalMs != _dayInterval)
             {
                 DayIntervalEventArgs e = new DayIntervalEventArgs() { OldInterval = _dayInterval, NewInterval = intervalMs };
+                DateTime now = Now;
+                _year = Now.Year;
+                _month = Now.Month;
+                _day = Now.Day;
                 _dayInterval = intervalMs;
                 OnDayIntervalChanged(e);
             }

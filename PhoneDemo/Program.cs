@@ -16,57 +16,31 @@ using NAlex.Billing.Tariffs;
 
 namespace PhoneDemo
 {
-	internal class Program
-	{		
-		public static void Main(string[] args)
-		{			
-			using (PhoneOperator demoOperator = new PhoneOperator())
-			{
-				
-			}
+    internal class Program
+    {		
+        public static void Main(string[] args)
+        {			
+            using (PhoneOperator demoOperator = new PhoneOperator())
+            {
+                demoOperator.CreateSomeSubscribers();
+                demoOperator.ConnectTerminals();
+                demoOperator.MakeSomeCalls();
 
+                demoOperator.WriteCalls(c => c.SourcePortId.Equals(demoOperator.Billing.Subscribers.ElementAt(0).PortId)
+                    || c.DestinationPortId.Equals(demoOperator.Billing.Subscribers.ElementAt(0).PortId));
 
-			IDateTimeHelper dtHelper = new DateTimeHelper(100000);
-						
-			IPortFactory pFactory = new PePortFactory();
-			IBillableExchange ape = new PhoneExchange(pFactory, (new IntId()).StartValue());									
-			IBilling billing = new Billing(ape, new ContractFactory(dtHelper), new SubscriberFactory(), dtHelper);
+                demoOperator.WriteBalance();
+                demoOperator.PassSomeDays(33);
+                demoOperator.WriteBalance();
+                demoOperator.MakeSomePayments();
+                demoOperator.WriteBalance();
 
-			ISubscriber john = billing.Subscribe("John", new BaseTariff());
-			ISubscriber jack = billing.Subscribe("Jack", new CallTariff());
-			ISubscriber mary = billing.Subscribe("Mary", new CallTariff());
+                demoOperator.WriteCalls(demoOperator.Billing.Subscribers.ElementAt(1).Contract, c => true);
 
-			john.ConnectTerminal();
-			jack.ConnectTerminal();
-			mary.ConnectTerminal();
+                demoOperator.DisconnectTerminals();
+            }
 
-			john.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };
-			jack.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };				
-			mary.Terminal.CallReceived += (sender, e) => { (sender as ITerminal).AcceptCall(); };				
-
-			john.Terminal.StartCall(jack.PortId);
-			mary.Terminal.StartCall(john.PortId);
-
-			Thread.Sleep(100);
-
-			jack.Terminal.EndCall();
-			mary.Terminal.StartCall(john.PortId);
-
-			Thread.Sleep(100);
-
-			mary.Terminal.EndCall();
-
-			john.Terminal.StartCall(mary.PortId);
-
-			Thread.Sleep(100);
-
-			john.DisconnectTerminal();
-
-			dtHelper.SetDayInterval(1000);
-			Thread.Sleep(2000);
-
-			billing.Calls(john.Contract).ToList().ForEach(c => Console.WriteLine(c));
-			Console.WriteLine(billing.Balance(jack.Contract, dtHelper.Now));
-		}
-	}
+            Console.ReadKey();
+        }
+    }
 }

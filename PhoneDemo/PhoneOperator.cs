@@ -84,24 +84,53 @@ namespace PhoneDemo
                 int dayInterval = dtHelper.DayInterval;
                 dtHelper.SetDayInterval(100);
                 Thread.Sleep(days * 100);
-                dtHelper.SetDayInterval(dayInterval);
+                dtHelper.SetDayInterval(dayInterval);                
             }
         }
 
         public void MakeSomePayments()
         {
-            
+            Billing.Pay(Billing.Subscribers.ElementAt(0).Contract, 1);
+            Billing.Pay(Billing.Subscribers.ElementAt(1).Contract, 2);
+            Billing.Pay(Billing.Subscribers.ElementAt(3).Contract, 4);
         }
 
-        public void WriteSomeStatistics()
+        public void WriteBalance()
         {
             DateTime now = dtHelper.Now;
             Console.WriteLine("Balance on date: {0}", now);
             Console.WriteLine();
             foreach (var subscriber in Billing.Subscribers)
             {
-                Console.WriteLine("Balance for subscriber {0}: {1}", subscriber.Name, Billing.Balance(subscriber.Contract, now));
+                Console.WriteLine("Subscriber: {0}", subscriber.Name);
+                Console.WriteLine("Tariff: {0}", subscriber.Contract.Tariff);
+                Console.WriteLine("Balance: {0}", Billing.Balance(subscriber.Contract));
+                Console.WriteLine("Contract state: {0}", subscriber.Contract.State);
+                Console.WriteLine();
             }
+        }
+
+        public void WriteCalls(Func<Call, bool> condition)
+        {
+            Console.WriteLine("Calls:");
+            Console.WriteLine();
+            Billing.Calls().Where(condition).ToList()
+                .ForEach(c => 
+                {
+                    Console.WriteLine(c); 
+                });
+        }
+
+        public void WriteCalls(IContract contract, Func<Call, bool> condition)
+        {
+            Console.WriteLine("Calls:");
+            Console.WriteLine();
+            Billing.Calls(contract).Where(condition).ToList()
+                .ForEach(c =>
+                {
+                    Console.WriteLine(c);
+                    Console.WriteLine();
+                });
         }
 
         #region IDisposable Support
