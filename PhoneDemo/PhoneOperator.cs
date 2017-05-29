@@ -44,6 +44,10 @@ namespace PhoneDemo
             {
                 subscriber.ConnectTerminal();
                 subscriber.Terminal.CallReceived += (sender, e) => (sender as ITerminal).AcceptCall();
+                subscriber.Contract.Port.CallEnded += (sender, e) =>
+                    {
+                        Console.WriteLine("\tCall from {0} to {1} ending state: {2}", e.SourcePortId, e.DestinationPortId, e.State);
+                    };
             }
         }
 
@@ -57,24 +61,36 @@ namespace PhoneDemo
         {            
             Billing.Subscribers.ElementAt(0).Terminal.StartCall(Billing.Subscribers.ElementAt(1).PortId);
             Billing.Subscribers.ElementAt(2).Terminal.StartCall(Billing.Subscribers.ElementAt(3).PortId);
-            Thread.Sleep(rnd.Next(30) + 20);
+            Thread.Sleep(rnd.Next(30) + 200);
             Billing.Subscribers.ElementAt(2).Terminal.EndCall();
-            Thread.Sleep(rnd.Next(20) + 15);
+            Thread.Sleep(rnd.Next(20) + 30);
             Billing.Subscribers.ElementAt(1).Terminal.EndCall();
 
             Billing.Subscribers.ElementAt(3).Terminal.StartCall(Billing.Subscribers.ElementAt(0).PortId);
             Billing.Subscribers.ElementAt(2).Terminal.StartCall(Billing.Subscribers.ElementAt(1).PortId);
-            Thread.Sleep(rnd.Next(60) + 20);
+            Thread.Sleep(rnd.Next(60) + 200);
             Billing.Subscribers.ElementAt(2).Terminal.EndCall();
-            Thread.Sleep(rnd.Next(40) + 15);
+            Thread.Sleep(rnd.Next(40) + 40);
             Billing.Subscribers.ElementAt(0).Terminal.EndCall();
 
             Billing.Subscribers.ElementAt(1).Terminal.StartCall(Billing.Subscribers.ElementAt(2).PortId);
             Billing.Subscribers.ElementAt(0).Terminal.StartCall(Billing.Subscribers.ElementAt(3).PortId);
-            Thread.Sleep(rnd.Next(30) + 30);
+            Thread.Sleep(rnd.Next(30) + 200);
             Billing.Subscribers.ElementAt(2).Terminal.EndCall();
             Thread.Sleep(rnd.Next(20) + 40);
-            Billing.Subscribers.ElementAt(1).Terminal.EndCall();
+            Billing.Subscribers.ElementAt(0).Terminal.EndCall();
+
+            Billing.Subscribers.ElementAt(3).Terminal.StartCall(Billing.Subscribers.ElementAt(2).PortId);
+            Thread.Sleep(rnd.Next(50) + 200);
+            Billing.Subscribers.ElementAt(3).Terminal.EndCall();
+
+            Billing.Subscribers.ElementAt(3).Terminal.StartCall(Billing.Subscribers.ElementAt(0).PortId);
+            Thread.Sleep(rnd.Next(60) + 200);
+            Billing.Subscribers.ElementAt(3).Terminal.EndCall();
+
+            Billing.Subscribers.ElementAt(3).Terminal.StartCall(Billing.Subscribers.ElementAt(1).PortId);
+            Thread.Sleep(rnd.Next(10) + 200);
+            Billing.Subscribers.ElementAt(3).Terminal.EndCall();
         }
 
         public void PassSomeDays(int days)
@@ -84,7 +100,10 @@ namespace PhoneDemo
                 int dayInterval = dtHelper.DayInterval;
                 dtHelper.SetDayInterval(100);
                 Thread.Sleep(days * 100);
-                dtHelper.SetDayInterval(dayInterval);                
+                dtHelper.SetDayInterval(dayInterval);
+                Console.WriteLine();
+                Console.WriteLine("... Passed {0} days ...", days);
+                Console.WriteLine();
             }
         }
 
@@ -93,12 +112,15 @@ namespace PhoneDemo
             Billing.Pay(Billing.Subscribers.ElementAt(0).Contract, 1);
             Billing.Pay(Billing.Subscribers.ElementAt(1).Contract, 2);
             Billing.Pay(Billing.Subscribers.ElementAt(3).Contract, 4);
+
+            Console.WriteLine("-------- Make some payments.. ----------");
         }
 
         public void WriteBalance()
         {
             DateTime now = dtHelper.Now;
-            Console.WriteLine("Balance on date: {0}", now);
+            Console.WriteLine();
+            Console.WriteLine("----------- Balance on date: {0} -------------", now);
             Console.WriteLine();
             foreach (var subscriber in Billing.Subscribers)
             {
@@ -112,7 +134,8 @@ namespace PhoneDemo
 
         public void WriteCalls(Func<Call, bool> condition)
         {
-            Console.WriteLine("Calls:");
+            Console.WriteLine();
+            Console.WriteLine("--------------- Calls: ----------------");
             Console.WriteLine();
             Billing.Calls().Where(condition).ToList()
                 .ForEach(c => 
@@ -123,13 +146,13 @@ namespace PhoneDemo
 
         public void WriteCalls(IContract contract, Func<Call, bool> condition)
         {
-            Console.WriteLine("Calls:");
+            Console.WriteLine();
+            Console.WriteLine("--------------- Calls: ----------------");
             Console.WriteLine();
             Billing.Calls(contract).Where(condition).ToList()
                 .ForEach(c =>
                 {
-                    Console.WriteLine(c);
-                    Console.WriteLine();
+                    Console.WriteLine(c);                    
                 });
         }
 
