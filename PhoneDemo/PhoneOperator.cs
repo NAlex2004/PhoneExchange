@@ -31,11 +31,12 @@ namespace PhoneDemo
         }
 
         public void CreateSomeSubscribers()
-        {
+        {            
             Billing.Subscribe("John", new BaseTariff());
             Billing.Subscribe("Jack", new CallTariff());
             Billing.Subscribe("Mary", new SimpleTariff());
-            Billing.Subscribe("Alex", new SimpleTariff());            
+            Billing.Subscribe("Alex", new SimpleTariff());
+            Console.WriteLine("\tSubscribers created...");
         }
 
         public void ConnectTerminals()
@@ -49,12 +50,14 @@ namespace PhoneDemo
                         Console.WriteLine("\tCall from {0} to {1} ending state: {2}", e.SourcePortId, e.DestinationPortId, e.State);
                     };
             }
+            Console.WriteLine("\tTerminals connected...");
         }
 
         public void DisconnectTerminals()
         {
             foreach (var subscriber in Billing.Subscribers)
                 subscriber.DisconnectTerminal();
+            Console.WriteLine("\tTerminals disconnected...");
         }
 
         public void MakeSomeCalls()

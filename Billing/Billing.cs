@@ -77,11 +77,8 @@ namespace NAlex.Billing
             return subscriber;
         }
 
-        public bool Unsubscribe(ISubscriber subscriber)
+        protected bool UnsubscribeAtAll(ISubscriber subscriber)
         {
-            if (Balance(subscriber.Contract) < 0)
-                return false;
-            
             if (_subscribersFee.Remove(subscriber))
             {
                 subscriber.Contract.Port.Disconnect();
@@ -90,11 +87,19 @@ namespace NAlex.Billing
                 subscriber.Contract.State = ContractStates.Completed;
                 _allowContractStateChange = false;
                 subscriber.Contract.ContractStateChanging -= BillingContractStateChanging;
-                
+
                 return true;
             }
 
             return false;
+        }
+
+        public bool Unsubscribe(ISubscriber subscriber)
+        {
+            if (Balance(subscriber.Contract) < 0)
+                return false;
+
+            return UnsubscribeAtAll(subscriber);
         }
 
         public virtual double Cost(IContract contract, Func<Call, bool> condition)
@@ -262,6 +267,11 @@ namespace NAlex.Billing
             _timer.Elapsed -= DailyTask;
             _timer.Dispose();
             _dtHelper.DayIntervalChanged -= BillingDayIntervalChanged;
+
+            var subscribers = _subscribersFee.Keys.ToArray();
+
+            foreach (var subscr in subscribers)
+                UnsubscribeAtAll(subscr);
 
             _disposed = true;
         }
